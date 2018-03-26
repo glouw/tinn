@@ -1,0 +1,4 @@
+*.dat*
+*.o
+*.d
+shaper
