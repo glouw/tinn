@@ -3,12 +3,12 @@
 // Get it from the machine learning database:
 //     wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 
+#include "Genann.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-
-#include "Genann.h"
 
 #define toss(t, n) ((t*) malloc((n) * sizeof(t)))
 
@@ -69,7 +69,7 @@ static double** new2d(const int rows, const int cols)
 static Data ndata(const int icols, const int ocols, const int rows, const double percentage)
 {
     const Data data = {
-        new2d(rows, icols), new2d(rows, ocols), icols, ocols, rows, rows * percentage
+        new2d(rows, icols), new2d(rows, ocols), icols, ocols, rows, (int) (rows * percentage)
     };
     return data;
 }
@@ -150,7 +150,7 @@ static void predict(Genann* ann, const Data d)
     printf("%f\n", (double) matches / (d.rows - d.split));
 }
 
-static Data build(char* path, const int icols, const int ocols, const double percentage)
+static Data build(const char* path, const int icols, const int ocols, const double percentage)
 {
     FILE* file = fopen(path, "r");
     const int rows = lns(file);

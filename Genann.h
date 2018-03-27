@@ -30,7 +30,6 @@
 
 #pragma once
 
-#include <stdio.h>
 #include <assert.h>
 #include <errno.h>
 #include <math.h>
@@ -76,7 +75,7 @@ static inline double genann_act_sigmoid_cached(double a)
     // delete this entire function and replace references
     // of genann_act_sigmoid_cached to genann_act_sigmoid.
     const double min = -15.0;
-    const double max = 15.0;
+    const double max = +15.0;
     static double interval;
     static int initialized = 0;
     static double lookup[4096];
@@ -137,7 +136,7 @@ static inline Genann *genann_init(int inputs, int hidden_layers, int hidden, int
     const int total_neurons = inputs + hidden * hidden_layers + outputs;
     // Allocate extra size for weights, outputs, and deltas.
     const int size = sizeof(Genann) + sizeof(double) * (total_weights + total_neurons + (total_neurons - inputs));
-    Genann *ret = malloc(size);
+    Genann* ret = (Genann*) malloc(size);
     if(!ret)
         return 0;
     ret->inputs = inputs;
@@ -147,7 +146,7 @@ static inline Genann *genann_init(int inputs, int hidden_layers, int hidden, int
     ret->total_weights = total_weights;
     ret->total_neurons = total_neurons;
     // Set pointers.
-    ret->weight = (double*)((char*)ret + sizeof(Genann));
+    ret->weight = (double*) ((char*) ret + sizeof(Genann));
     ret->output = ret->weight + ret->total_weights;
     ret->delta = ret->output + ret->total_neurons;
     genann_randomize(ret);
@@ -162,35 +161,10 @@ static inline void genann_free(Genann *ann)
     free(ann);
 }
 
-static inline Genann *genann_read(FILE *in)
-{
-    int inputs, hidden_layers, hidden, outputs;
-    errno = 0;
-    int rc = fscanf(in, "%d %d %d %d", &inputs, &hidden_layers, &hidden, &outputs);
-    if(rc < 4 || errno != 0)
-    {
-        perror("fscanf");
-        return NULL;
-    }
-    Genann *ann = genann_init(inputs, hidden_layers, hidden, outputs);
-    for(int i = 0; i < ann->total_weights; ++i)
-    {
-        errno = 0;
-        rc = fscanf(in, " %le", ann->weight + i);
-        if(rc < 1 || errno != 0)
-        {
-            perror("fscanf");
-            genann_free(ann);
-            return NULL;
-        }
-    }
-    return ann;
-}
-
 static inline Genann *genann_copy(Genann const *ann)
 {
     const int size = sizeof(Genann) + sizeof(double) * (ann->total_weights + ann->total_neurons + (ann->total_neurons - ann->inputs));
-    Genann *ret = malloc(size);
+    Genann* ret = (Genann*) malloc(size);
     if(!ret)
         return 0;
     memcpy(ret, ann, size);
@@ -218,9 +192,7 @@ static inline double const *genann_run(Genann const *ann, double const *inputs)
         {
             double sum = *w++ * -1.0;
             for(int k = 0; k < (h == 0 ? ann->inputs : ann->hidden); ++k)
-            {
                 sum += *w++ * i[k];
-            }
             *o++ = act(sum);
         }
         i += (h == 0 ? ann->inputs : ann->hidden);
@@ -253,20 +225,14 @@ static inline void genann_train(Genann const *ann, double const *inputs, double 
         double const *t = desired_outputs;
         // Set output layer deltas.
         if(ann->activation_output == genann_act_linear)
-        {
             for(int j = 0; j < ann->outputs; ++j)
-            {
                 *d++ = *t++ - *o++;
-            }
-        }
         else
-        {
             for(int j = 0; j < ann->outputs; ++j)
             {
                 *d++ = (*t - *o) * *o * (1.0 - *o);
                 ++o; ++t;
             }
-        }
     }
     // Set hidden layer deltas, start on last layer and work backwards.
     // Note that loop is skipped in the case of hidden_layers == 0.
@@ -276,13 +242,13 @@ static inline void genann_train(Genann const *ann, double const *inputs, double 
         double const *o = ann->output + ann->inputs + (h * ann->hidden);
         double *d = ann->delta + (h * ann->hidden);
         // Find first delta in following layer (which may be hidden or output).
-        double const * const dd = ann->delta + ((h+1) * ann->hidden);
+        double const * const dd = ann->delta + ((h + 1) * ann->hidden);
         // Find first weight in following layer (which may be hidden or output).
-        double const * const ww = ann->weight + ((ann->inputs+1) * ann->hidden) + ((ann->hidden+1) * ann->hidden * (h));
+        double const * const ww = ann->weight + ((ann->inputs + 1) * ann->hidden) + ((ann->hidden+1) * ann->hidden * (h));
         for(int j = 0; j < ann->hidden; ++j)
         {
             double delta = 0;
-            for(int k = 0; k < (h == ann->hidden_layers-1 ? ann->outputs : ann->hidden); ++k)
+            for(int k = 0; k < (h == ann->hidden_layers - 1 ? ann->outputs : ann->hidden); ++k)
             {
                 const double forward_delta = dd[k];
                 const int windex = k * (ann->hidden + 1) + (j + 1);
@@ -290,34 +256,23 @@ static inline void genann_train(Genann const *ann, double const *inputs, double 
                 delta += forward_delta * forward_weight;
             }
             *d = *o * (1.0-*o) * delta;
-            ++d; ++o;
+            ++d;
+            ++o;
         }
     }
     // Train the outputs.
     {
-        // Find first output delta.
-        // First output delta.
-        double const *d = ann->delta + ann->hidden * ann->hidden_layers;
+        // Find first output delta. First output delta.
+        const double * d = ann->delta + ann->hidden * ann->hidden_layers;
         // Find first weight to first output delta.
-        double *w = ann->weight + (ann->hidden_layers
-                ? ((ann->inputs+1) * ann->hidden + (ann->hidden+1) * ann->hidden * (ann->hidden_layers-1))
-                : (0));
+        double* w = ann->weight + (ann->hidden_layers ? ((ann->inputs + 1) * ann->hidden + (ann->hidden + 1) * ann->hidden * (ann->hidden_layers - 1)) : 0);
         // Find first output in previous layer.
-        double const * const i = ann->output + (ann->hidden_layers
-                ? (ann->inputs + (ann->hidden) * (ann->hidden_layers-1))
-                : 0);
+        const double* const i = ann->output + (ann->hidden_layers ? (ann->inputs + ann->hidden * (ann->hidden_layers - 1)) : 0);
         // Set output layer weights.
-        for(int j = 0; j < ann->outputs; ++j) {
-            for(int k = 0; k < (ann->hidden_layers ? ann->hidden : ann->inputs) + 1; ++k) {
-                if(k == 0)
-                {
-                    *w++ += *d * learning_rate * -1.0;
-                }
-                else
-                {
-                    *w++ += *d * learning_rate * i[k-1];
-                }
-            }
+        for(int j = 0; j < ann->outputs; ++j)
+        {
+            for(int k = 0; k < (ann->hidden_layers ? ann->hidden : ann->inputs) + 1; ++k)
+                *w++ += (k == 0) ? (*d * learning_rate * -1.0) : (*d * learning_rate * i[k-1]);
             ++d;
         }
         assert(w - ann->weight == ann->total_weights);
@@ -326,28 +281,15 @@ static inline void genann_train(Genann const *ann, double const *inputs, double 
     for(int h = ann->hidden_layers - 1; h >= 0; --h)
     {
         // Find first delta in this layer.
-        double const *d = ann->delta + (h * ann->hidden);
+        const double* d = ann->delta + (h * ann->hidden);
         // Find first input to this layer.
-        double const *i = ann->output + (h
-                ? (ann->inputs + ann->hidden * (h-1))
-                : 0);
+        const double* i = ann->output + (h ? (ann->inputs + ann->hidden * (h - 1)) : 0);
         // Find first weight to this layer.
-        double *w = ann->weight + (h
-                ? ((ann->inputs+1) * ann->hidden + (ann->hidden+1) * (ann->hidden) * (h-1))
-                : 0);
+        double* w = ann->weight + (h ? ((ann->inputs + 1) * ann->hidden + (ann->hidden + 1) * (ann->hidden) * (h - 1)) : 0);
         for(int j = 0; j < ann->hidden; ++j)
         {
             for(int k = 0; k < (h == 0 ? ann->inputs : ann->hidden) + 1; ++k)
-            {
-                if (k == 0)
-                {
-                    *w++ += *d * learning_rate * -1.0;
-                }
-                else
-                {
-                    *w++ += *d * learning_rate * i[k-1];
-                }
-            }
+                *w++ += (k == 0) ? (*d * learning_rate * -1.0) : (*d * learning_rate * i[k - 1]);
             ++d;
         }
     }
@@ -358,4 +300,32 @@ static inline void genann_write(Genann const *ann, FILE *out)
     fprintf(out, "%d %d %d %d", ann->inputs, ann->hidden_layers, ann->hidden, ann->outputs);
     for(int i = 0; i < ann->total_weights; ++i)
         fprintf(out, " %.20e", ann->weight[i]);
+}
+
+static inline Genann *genann_read(FILE *in)
+{
+    int inputs;
+    int hidden_layers;
+    int hidden;
+    int outputs;
+    errno = 0;
+    int rc = fscanf(in, "%d %d %d %d", &inputs, &hidden_layers, &hidden, &outputs);
+    if(rc < 4 || errno != 0)
+    {
+        perror("fscanf");
+        return NULL;
+    }
+    Genann *ann = genann_init(inputs, hidden_layers, hidden, outputs);
+    for(int i = 0; i < ann->total_weights; ++i)
+    {
+        errno = 0;
+        rc = fscanf(in, " %le", ann->weight + i);
+        if(rc < 1 || errno != 0)
+        {
+            perror("fscanf");
+            genann_free(ann);
+            return NULL;
+        }
+    }
+    return ann;
 }
