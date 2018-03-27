@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "genann.h"
+#include "Genann.h"
 
 #define toss(t, n) ((t*) malloc((n) * sizeof(t)))
 
@@ -21,10 +21,11 @@ typedef struct
     int icols;
     int ocols;
     int rows;
+    int split;
 }
 Data;
 
-static int flns(FILE* const file)
+static int lns(FILE* const file)
 {
     int ch = EOF;
     int lines = 0;
@@ -41,7 +42,7 @@ static int flns(FILE* const file)
     return lines;
 }
 
-static char* freadln(FILE* const file)
+static char* readln(FILE* const file)
 {
     int ch = EOF;
     int reads = 0;
@@ -65,13 +66,15 @@ static double** new2d(const int rows, const int cols)
     return row;
 }
 
-static Data ndata(const int icols, const int ocols, const int rows)
+static Data ndata(const int icols, const int ocols, const int rows, const double percentage)
 {
-    const Data data = { new2d(rows, icols), new2d(rows, ocols), icols, ocols, rows };
+    const Data data = {
+        new2d(rows, icols), new2d(rows, ocols), icols, ocols, rows, rows * percentage
+    };
     return data;
 }
 
-static void dparse(const Data data, char* line, const int row)
+static void parse(const Data data, char* line, const int row)
 {
     const int cols = data.icols + data.ocols;
     for(int col = 0; col < cols; col++)
@@ -95,12 +98,11 @@ static void dfree(const Data d)
     free(d.od);
 }
 
-static void shuffle(const Data d)
+static void shuffle(const Data d, const int upper)
 {
-    srand(time(0));
-    for(int a = 0; a < d.rows; a++)
+    for(int a = 0; a < upper; a++)
     {
-        const int b = rand() % d.rows;
+        const int b = rand() % d.split;
         double* ot = d.od[a];
         double* it = d.id[a];
         // Swap output.
@@ -112,61 +114,82 @@ static void shuffle(const Data d)
     }
 }
 
-static genann* dtrain(const Data d, const int ntimes, const int layers, const int neurons, const int rate)
+static void print(const double* const arr, const int size)
 {
-    genann* const ann = genann_init(d.icols, layers, neurons, d.ocols);
-    for(int i = 0; i < ntimes; i++)
-    {
-        shuffle(d);
-        for(int j = 0; j < d.rows; j++)
-            genann_train(ann, d.id[j], d.od[j], rate);
-        printf("%f\n", (double) i / ntimes);
-    }
-    return ann;
+    for(int i = 0; i < size; i++)
+        printf("%d ", arr[i] > 0.9);
 }
 
-static void dpredict(genann* ann, const Data d)
+static int cmp(const double* const a, const double* const b, const int size)
 {
-    for(int i = 0; i < d.rows; i++)
+    for(int i = 0; i < size; i++)
     {
-        printf("%d: ", i);
+        const int aa = a[i] > 0.9;
+        const int bb = b[i] > 0.9;
+        if(aa != bb)
+            return 0;
+    }
+    return 1;
+}
+
+static void predict(Genann* ann, const Data d)
+{
+    int matches = 0;
+    for(int i = d.split; i < d.rows; i++)
+    {
         // Prediciton.
         const double* const pred = genann_run(ann, d.id[i]);
-        for(int j = 0; j < d.ocols; j++)
-            printf("%s%d", j > 0 ? " " : "", pred[j] > 0.9);
-        printf("%s", " :: ");
-        // Actual.
-        for(int j = 0; j < d.ocols; j++)
-            printf("%s%d", j > 0 ? " " : "", (int) d.od[i][j]);
-        putchar('\n');
+        const double* const real = d.od[i];
+        print(pred, d.ocols);
+        printf(":: ");
+        print(real, d.ocols);
+        const int match = cmp(pred, real, d.ocols);
+        printf("-> %d\n", match);
+        matches += match;
     }
+    printf("%f\n", (double) matches / (d.rows - d.split));
 }
 
-static Data dbuild(char* path, const int icols, const int ocols)
+static Data build(char* path, const int icols, const int ocols, const double percentage)
 {
     FILE* file = fopen(path, "r");
-    const int rows = flns(file);
-    Data data = ndata(icols, ocols, rows);
+    const int rows = lns(file);
+    Data data = ndata(icols, ocols, rows, percentage);
     for(int row = 0; row < rows; row++)
     {
-        char* line = freadln(file);
-        dparse(data, line, row);
+        char* line = readln(file);
+        parse(data, line, row);
         free(line);
     }
     fclose(file);
     return data;
 }
 
+static Genann* train(const Data d, const int ntimes, const int layers, const int neurons, const double rate)
+{
+    Genann* const ann = genann_init(d.icols, layers, neurons, d.ocols);
+    double annealed = rate;
+    for(int i = 0; i < ntimes; i++)
+    {
+        shuffle(d, d.split);
+        for(int j = 0; j < d.split; j++)
+            genann_train(ann, d.id[j], d.od[j], annealed);
+        printf("%f: %f\n", (double) i / ntimes, annealed);
+        annealed *= 0.95;
+    }
+    return ann;
+}
+
 int main(int argc, char* argv[])
 {
     (void) argc;
     (void) argv;
-    const Data test = dbuild("semeion.data", 256, 10);
-    const Data vald = dbuild("written.data", 256, 10);
-    genann* ann = dtrain(test, 256, 1, 128, 1);
-    dpredict(ann, vald);
+    srand(time(0));
+    const Data data = build("semeion.data", 256, 10, 0.9);
+    shuffle(data, data.rows);
+    Genann* ann = train(data, 128, 1, data.icols / 2.0, 3.0); // Hyperparams.
+    predict(ann, data);
     genann_free(ann);
-    dfree(test);
-    dfree(vald);
+    dfree(data);
     return 0;
 }

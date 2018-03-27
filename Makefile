@@ -4,7 +4,6 @@ NAME = shaper
 
 SRCS =
 SRCS+= main.c
-SRCS+= genann.c
 
 # CompSpec defined in windows environment.
 ifdef ComSpec
