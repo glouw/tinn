@@ -87,7 +87,7 @@ static void forewards(Tinn t, double* in)
 
 static void twrand(Tinn t)
 {
-    const int wgts = t.nhid * (t.nips + t.nops);
+    int wgts = t.nhid * (t.nips + t.nops);
     int i;
     for(i = 0; i < wgts; i++) t.w[i] = frand();
     for(i = 0; i < t.nb; i++) t.b[i] = frand();
