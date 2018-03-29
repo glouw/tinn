@@ -1,7 +1,6 @@
 # Tinn
 
-Tinn (Tinny Neural Network) is a dependency free ANSI-C feed forward neural network
-library with one hidden layer back propogation support.
+Tinn (Tinny Neural Network) is a dependency free ANSI-C neural network library.
 
 Run the sample:
 
