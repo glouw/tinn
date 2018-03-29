@@ -125,14 +125,14 @@ static void twrand(Tinn t)
 #endif
 }
 
-double ttrain(Tinn t, double* in, double* tg, double rate)
+double xttrain(Tinn t, double* in, double* tg, double rate)
 {
     forewards(t, in);
     backwards(t, in, tg, rate);
     return error(t, tg);
 }
 
-Tinn tbuild(int nips, int nops, int nhid)
+Tinn xtbuild(int nips, int nops, int nhid)
 {
     Tinn t;
     t.o = (double*) calloc(nops, sizeof(*t.o));
@@ -145,7 +145,7 @@ Tinn tbuild(int nips, int nops, int nhid)
     return t;
 }
 
-void tfree(Tinn t)
+void xtfree(Tinn t)
 {
     free(t.w);
     free(t.h);

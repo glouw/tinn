@@ -26,11 +26,11 @@ int main()
     int nops = 1;
     double* in = inload(nips);
     double* tg = tgload(nops);
-    Tinn tinn = tbuild(nips, nops, nhid);
+    Tinn tinn = xtbuild(nips, nops, nhid);
     int i;
     for(i = 0; i <= 10000; i++)
-        printf("%.18f\n", ttrain(tinn, in, tg, 0.5));
-    tfree(tinn);
+        printf("%.18f\n", xttrain(tinn, in, tg, 0.5));
+    xtfree(tinn);
     free(in);
     free(tg);
     return 0;
