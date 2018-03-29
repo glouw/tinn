@@ -1,11 +1,6 @@
 #ifndef _TINN_H_
 #define _TINN_H_
 
-/*
- * TINN - The tiny dependency free ANSI-C feed forward neural network
- * library with one hidden layer back propogation support.
- */
-
 typedef struct
 {
     double* o;
