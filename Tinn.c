@@ -14,16 +14,17 @@ static double error(Tinn t, double* tg)
 
 static void backwards(Tinn t, double* in, double* tg, double rate)
 {
-    int i, j, k;
     double* x = t.w + t.nhid * t.nips;
+    int i;
     for(i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
-        for(k = 0; k < t.nops; k++)
+        int j;
+        for(j = 0; j < t.nops; j++)
         {
-            double a = t.o[k] - tg[k];
-            double b = t.o[k] * (1 - t.o[k]);
-            double c = x[k * t.nhid + i];
+            double a = t.o[j] - tg[j];
+            double b = t.o[j] * (1 - t.o[j]);
+            double c = x[j * t.nhid + i];
             sum += a * b * c;
         }
         for(j = 0; j < t.nips; j++)
@@ -33,14 +34,13 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
             double c = in[j];
             t.w[i * t.nips + j] -= rate * a * b * c;
         }
-    }
-    for(i = 0; i < t.nops; i++)
-    for(j = 0; j < t.nhid; j++)
-    {
-        double a = t.o[i] - tg[i];
-        double b = t.o[i] * (1 - t.o[i]);
-        double c = t.h[j];
-        x[t.nhid * i + j] -= rate * a * b * c;
+        for(j = 0; j < t.nops; j++)
+        {
+            double a = t.o[j] - tg[j];
+            double b = t.o[j] * (1 - t.o[j]);
+            double c = t.h[i];
+            x[j * t.nhid + i] -= rate * a * b * c;
+        }
     }
 }
 
@@ -51,12 +51,13 @@ static double act(double net)
 
 static void forewards(Tinn t, double* in)
 {
-    int i, j;
     const double bias[] = { 0.35, 0.60 };
     double* x = t.w + t.nhid * t.nips;
+    int i;
     for(i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
+        int j;
         for(j = 0; j < t.nips; j++)
         {
             double a = in[j];
@@ -68,6 +69,7 @@ static void forewards(Tinn t, double* in)
     for(i = 0; i < t.nops; i++)
     {
         double sum = 0.0;
+        int j;
         for(j = 0; j < t.nhid; j++)
         {
             double a = t.h[j];
@@ -81,6 +83,7 @@ static void forewards(Tinn t, double* in)
 static void twrand(Tinn t)
 {
 #if 0
+    /* 2 2 2 */
     t.w[0] = 0.15;
     t.w[1] = 0.20;
     t.w[2] = 0.25;
@@ -90,7 +93,9 @@ static void twrand(Tinn t)
     t.w[5] = 0.45;
     t.w[6] = 0.50;
     t.w[7] = 0.55;
-#else
+#endif
+#if 0
+    /* 2 3 2 */
     t.w[0] = 0.15;
     t.w[1] = 0.20;
     t.w[2] = 0.25;
@@ -104,6 +109,19 @@ static void twrand(Tinn t)
     t.w[9] = 0.55;
     t.w[10] = 0.55;
     t.w[11] = 0.55;
+#endif
+    /* 2 3 1 */
+#if 1
+    t.w[0] = 0.15;
+    t.w[1] = 0.20;
+    t.w[2] = 0.25;
+    t.w[3] = 0.30;
+    t.w[4] = 0.30;
+    t.w[5] = 0.30;
+
+    t.w[6] = 0.40;
+    t.w[7] = 0.45;
+    t.w[8] = 0.50;
 #endif
 }
 
