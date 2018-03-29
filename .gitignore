@@ -1,4 +1,5 @@
 *.dat*
 *.o
 *.d
-shaper
+tinn
+nn.py
