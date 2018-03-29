@@ -12,10 +12,10 @@ typedef struct
 }
 Tinn;
 
-double xttrain(Tinn, double* in, double* tg, double rate);
+extern double xttrain(Tinn, double* in, double* tg, double rate);
 
-Tinn xtbuild(int nips, int nops, int nhid);
+extern Tinn xtbuild(int nips, int nops, int nhid);
 
-void xtfree(Tinn);
+extern void xtfree(Tinn);
 
 #endif
