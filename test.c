@@ -1,37 +1,20 @@
 #include "Tinn.h"
-
 #include <stdio.h>
-#include <stdlib.h>
 
-static double* inload(int nips)
-{
-    double* in = (double*) calloc(nips, sizeof(*in));
-    in[0] = 0.05;
-    in[1] = 0.10;
-    return in;
-}
+#define len(a) ((int) (sizeof(a) / sizeof(*a)))
 
-static double* tgload(int nops)
+int main(void)
 {
-    double* tg = (double*) calloc(nops, sizeof(*tg));
-    tg[0] = 0.01;
-    /* tg[1] = 0.99; */
-    return tg;
-}
-
-int main()
-{
-    int nips = 2;
-    int nhid = 3;
-    int nops = 1;
-    double* in = inload(nips);
-    double* tg = tgload(nops);
-    Tinn tinn = xtbuild(nips, nops, nhid);
+    double in[] = { 0.05, 0.10 };
+    double tg[] = { 0.01, 0.99 };
+    /* Two hidden nuerons */
+    const Tinn tinn = xtbuild(len(in), 2, len(tg));
     int i;
-    for(i = 0; i <= 10000; i++)
-        printf("%.18f\n", xttrain(tinn, in, tg, 0.5));
+    for(i = 0; i < 10000; i++)
+    {
+        double error = xttrain(tinn, in, tg, 0.5);
+        printf("%.12f\n", error);
+    }
     xtfree(tinn);
-    free(in);
-    free(tg);
     return 0;
 }

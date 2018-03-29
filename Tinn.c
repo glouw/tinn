@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 static double error(Tinn t, double* tg)
 {
@@ -49,9 +50,13 @@ static double act(double net)
     return 1.0 / (1.0 + exp(-net));
 }
 
+static double frand(void)
+{
+    return rand() / (double) RAND_MAX;
+}
+
 static void forewards(Tinn t, double* in)
 {
-    const double bias[] = { 0.35, 0.60 };
     double* x = t.w + t.nhid * t.nips;
     int i;
     for(i = 0; i < t.nhid; i++)
@@ -64,7 +69,7 @@ static void forewards(Tinn t, double* in)
             double b = t.w[i * t.nips + j];
             sum += a * b;
         }
-        t.h[i] = act(sum + bias[0]);
+        t.h[i] = act(sum + t.b[0]);
     }
     for(i = 0; i < t.nops; i++)
     {
@@ -76,53 +81,16 @@ static void forewards(Tinn t, double* in)
             double b = x[i * t.nhid + j];
             sum += a * b;
         }
-        t.o[i] = act(sum + bias[1]);
+        t.o[i] = act(sum + t.b[1]);
     }
 }
 
 static void twrand(Tinn t)
 {
-#if 0
-    /* 2 2 2 */
-    t.w[0] = 0.15;
-    t.w[1] = 0.20;
-    t.w[2] = 0.25;
-    t.w[3] = 0.30;
-
-    t.w[4] = 0.40;
-    t.w[5] = 0.45;
-    t.w[6] = 0.50;
-    t.w[7] = 0.55;
-#endif
-#if 0
-    /* 2 3 2 */
-    t.w[0] = 0.15;
-    t.w[1] = 0.20;
-    t.w[2] = 0.25;
-    t.w[3] = 0.30;
-    t.w[4] = 0.30;
-    t.w[5] = 0.30;
-
-    t.w[6] = 0.40;
-    t.w[7] = 0.45;
-    t.w[8] = 0.50;
-    t.w[9] = 0.55;
-    t.w[10] = 0.55;
-    t.w[11] = 0.55;
-#endif
-    /* 2 3 1 */
-#if 1
-    t.w[0] = 0.15;
-    t.w[1] = 0.20;
-    t.w[2] = 0.25;
-    t.w[3] = 0.30;
-    t.w[4] = 0.30;
-    t.w[5] = 0.30;
-
-    t.w[6] = 0.40;
-    t.w[7] = 0.45;
-    t.w[8] = 0.50;
-#endif
+    const int wgts = t.nhid * (t.nips + t.nops);
+    int i;
+    for(i = 0; i < wgts; i++) t.w[i] = frand();
+    for(i = 0; i < t.nb; i++) t.b[i] = frand();
 }
 
 double xttrain(Tinn t, double* in, double* tg, double rate)
@@ -132,15 +100,18 @@ double xttrain(Tinn t, double* in, double* tg, double rate)
     return error(t, tg);
 }
 
-Tinn xtbuild(int nips, int nops, int nhid)
+Tinn xtbuild(int nips, int nhid, int nops)
 {
     Tinn t;
-    t.o = (double*) calloc(nops, sizeof(*t.o));
-    t.h = (double*) calloc(nhid, sizeof(*t.h));
+    t.nb = 2;
     t.w = (double*) calloc(nhid * (nips + nops), sizeof(*t.w));
-    t.nops = nops;
-    t.nhid = nhid;
+    t.b = (double*) calloc(t.nb, sizeof(*t.b));
+    t.h = (double*) calloc(nhid, sizeof(*t.h));
+    t.o = (double*) calloc(nops, sizeof(*t.o));
     t.nips = nips;
+    t.nhid = nhid;
+    t.nops = nops;
+    srand(time(0));
     twrand(t);
     return t;
 }

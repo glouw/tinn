@@ -3,18 +3,20 @@
 
 typedef struct
 {
-    double* o;
-    double* h;
     double* w;
-    int nops;
-    int nhid;
+    double* b;
+    double* h;
+    double* o;
+    int nb;
     int nips;
+    int nhid;
+    int nops;
 }
 Tinn;
 
 extern double xttrain(Tinn, double* in, double* tg, double rate);
 
-extern Tinn xtbuild(int nips, int nops, int nhid);
+extern Tinn xtbuild(int nips, int nhid, int nops);
 
 extern void xtfree(Tinn);
 
