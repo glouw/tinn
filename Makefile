@@ -1,6 +1,6 @@
 CC = gcc
 
-NAME = shaper
+NAME = tinn
 
 SRCS =
 SRCS += main.c
