@@ -1,4 +1,4 @@
-![]("img/logo.PNG")
+![](img/logo.PNG)
 
 Tinn (Tiny Neural Network) is a dependency free ANSI-C neural network library.
 
