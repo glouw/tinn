@@ -21,7 +21,7 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
     {
         double sum = 0.0;
         int j;
-        /* Calculate total error change with repsect to output */
+        /* Calculate total error change with respect to output */
         for(j = 0; j < t.nops; j++)
         {
             double a = t.o[j] - tg[j];
