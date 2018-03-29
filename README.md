@@ -1,6 +1,6 @@
 # Tinn
 
-Tinn (Tinny Neural Network) is a dependency free ANSI-C neural network library.
+Tinn (Tiny Neural Network) is a dependency free ANSI-C neural network library.
 
 Run the sample:
 
