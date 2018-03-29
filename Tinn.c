@@ -15,23 +15,23 @@ static double error(Tinn t, double* tg)
 static void backwards(Tinn t, double* in, double* tg, double rate)
 {
     int i, j, k;
-    double* X = t.w + t.nhid * t.nips;
-    for(i = 0; i < t.nips; i++)
+    double* x = t.w + t.nhid * t.nips;
+    for(i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
         for(k = 0; k < t.nops; k++)
         {
             double a = t.o[k] - tg[k];
             double b = t.o[k] * (1 - t.o[k]);
-            double c = X[k * t.nops + i];
+            double c = x[k * t.nhid + i];
             sum += a * b * c;
         }
-        for(j = 0; j < t.nhid; j++)
+        for(j = 0; j < t.nips; j++)
         {
             double a = sum;
             double b = t.h[i] * (1 - t.h[i]);
             double c = in[j];
-            t.w[i * t.nhid + j] -= rate * a * b * c;
+            t.w[i * t.nips + j] -= rate * a * b * c;
         }
     }
     for(i = 0; i < t.nops; i++)
@@ -40,7 +40,7 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
         double a = t.o[i] - tg[i];
         double b = t.o[i] * (1 - t.o[i]);
         double c = t.h[j];
-        X[t.nhid * i + j] -= rate * a * b * c;
+        x[t.nhid * i + j] -= rate * a * b * c;
     }
 }
 
@@ -53,7 +53,7 @@ static void forewards(Tinn t, double* in)
 {
     int i, j;
     const double bias[] = { 0.35, 0.60 };
-    double* X = t.w + t.nhid * t.nips;
+    double* x = t.w + t.nhid * t.nips;
     for(i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
@@ -71,7 +71,7 @@ static void forewards(Tinn t, double* in)
         for(j = 0; j < t.nhid; j++)
         {
             double a = t.h[j];
-            double b = X[i * t.nhid + j];
+            double b = x[i * t.nhid + j];
             sum += a * b;
         }
         t.o[i] = act(sum + bias[1]);
@@ -80,14 +80,31 @@ static void forewards(Tinn t, double* in)
 
 static void twrand(Tinn t)
 {
+#if 0
     t.w[0] = 0.15;
     t.w[1] = 0.20;
     t.w[2] = 0.25;
     t.w[3] = 0.30;
+
     t.w[4] = 0.40;
     t.w[5] = 0.45;
     t.w[6] = 0.50;
     t.w[7] = 0.55;
+#else
+    t.w[0] = 0.15;
+    t.w[1] = 0.20;
+    t.w[2] = 0.25;
+    t.w[3] = 0.30;
+    t.w[4] = 0.30;
+    t.w[5] = 0.30;
+
+    t.w[6] = 0.40;
+    t.w[7] = 0.45;
+    t.w[8] = 0.50;
+    t.w[9] = 0.55;
+    t.w[10] = 0.55;
+    t.w[11] = 0.55;
+#endif
 }
 
 double ttrain(Tinn t, double* in, double* tg, double rate)

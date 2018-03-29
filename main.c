@@ -22,13 +22,13 @@ static double* tgload(int nops)
 int main()
 {
     int nips = 2;
+    int nhid = 3;
     int nops = 2;
-    int nhid = 2;
     double* in = inload(nips);
     double* tg = tgload(nops);
     Tinn tinn = tbuild(nips, nops, nhid);
     int i;
-    for(i = 0; i < 10000; i++)
+    for(i = 0; i <= 10000; i++)
         printf("%.18f\n", ttrain(tinn, in, tg, 0.5));
     tfree(tinn);
     free(in);
