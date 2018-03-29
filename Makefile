@@ -14,7 +14,7 @@ else
 endif
 
 CFLAGS =
-CFLAGS += -std=c89
+CFLAGS += -std=c99
 CFLAGS += -Wshadow -Wall -Wpedantic -Wextra -Wdouble-promotion -Wunused-result
 CFLAGS += -g
 CFLAGS += -Ofast -march=native -pipe
