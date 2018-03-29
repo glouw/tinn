@@ -3,28 +3,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static double* inload(int nips)
+{
+    double* in = (double*) calloc(nips, sizeof(*in));
+    in[0] = 0.05;
+    in[1] = 0.10;
+    return in;
+}
+
+static double* tgload(int nops)
+{
+    double* tg = (double*) calloc(nops, sizeof(*tg));
+    tg[0] = 0.01;
+    tg[1] = 0.99;
+    return tg;
+}
+
 int main()
 {
+    int nips = 2;
+    int nops = 2;
+    int nhid = 2;
+    double* in = inload(nips);
+    double* tg = tgload(nops);
+    Tinn tinn = tbuild(nips, nops, nhid);
     int i;
-    int inputs = 2;
-    int output = 2;
-    int hidden = 2;
-    double* I = (double*) calloc(inputs, sizeof(*I));
-    double* T = (double*) calloc(output, sizeof(*T));
-    Tinn tinn = tnew(inputs, output, hidden);
-    /* Input. */
-    I[0] = 0.05;
-    I[1] = 0.10;
-    /* Target. */
-    T[0] = 0.01;
-    T[1] = 0.99;
     for(i = 0; i < 10000; i++)
-    {
-        double error = ttrain(tinn, I, T, 0.5);
-        printf("error: %0.13f\n", error);
-    }
+        printf("%.18f\n", ttrain(tinn, in, tg, 0.5));
     tfree(tinn);
-    free(I);
-    free(T);
+    free(in);
+    free(tg);
     return 0;
 }

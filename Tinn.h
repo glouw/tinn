@@ -8,18 +8,18 @@
 
 typedef struct
 {
-    double* O;
-    double* H;
-    double* W;
-    int output;
-    int hidden;
-    int inputs;
+    double* o;
+    double* h;
+    double* w;
+    int nops;
+    int nhid;
+    int nips;
 }
 Tinn;
 
-double ttrain(Tinn, double* I, double* T, double rate);
+double ttrain(Tinn, double* in, double* tg, double rate);
 
-Tinn tnew(int inputs, int output, int hidden);
+Tinn tbuild(int inputs, int output, int hidden);
 
 void tfree(Tinn);
 
