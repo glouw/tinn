@@ -17,7 +17,7 @@ CFLAGS =
 CFLAGS += -std=c89
 CFLAGS += -Wshadow -Wall -Wpedantic -Wextra -Wdouble-promotion -Wunused-result
 CFLAGS += -g
-CFLAGS += -O2 -march=native -pipe
+CFLAGS += -Ofast -march=native -pipe
 CFLAGS += -flto
 
 LDFLAGS =
