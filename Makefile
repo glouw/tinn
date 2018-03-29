@@ -3,7 +3,7 @@ CC = gcc
 NAME = tinn
 
 SRCS =
-SRCS += main.c
+SRCS += test.c
 SRCS += Tinn.c
 
 # CompSpec defined in windows environment.
