@@ -21,6 +21,7 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
     {
         double sum = 0.0;
         int j;
+        /* Calculate total error change with repsect to output */
         for(j = 0; j < t.nops; j++)
         {
             double a = t.o[j] - tg[j];
@@ -28,6 +29,7 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
             double c = x[j * t.nhid + i];
             sum += a * b * c;
         }
+        /* Correct weights in input to hidden layer */
         for(j = 0; j < t.nips; j++)
         {
             double a = sum;
@@ -35,6 +37,7 @@ static void backwards(Tinn t, double* in, double* tg, double rate)
             double c = in[j];
             t.w[i * t.nips + j] -= rate * a * b * c;
         }
+        /* Correct weights in hidden to output layer */
         for(j = 0; j < t.nops; j++)
         {
             double a = t.o[j] - tg[j];
@@ -59,6 +62,7 @@ static void forewards(Tinn t, double* in)
 {
     double* x = t.w + t.nhid * t.nips;
     int i;
+    /* Calculate hidden layer neuron values */
     for(i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
@@ -71,6 +75,7 @@ static void forewards(Tinn t, double* in)
         }
         t.h[i] = act(sum + t.b[0]);
     }
+    /* Calculate output layer neuron values */
     for(i = 0; i < t.nops; i++)
     {
         double sum = 0.0;
