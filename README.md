@@ -1,11 +1,8 @@
-# Shaper
+# Tinn
 
-Shaper learns hand written digits.
+Tinn (Tinny Neural Network) is a dependency free ANSI-C feed forward neural network
+library with one hidden layer back propogation support.
 
-Get the training data:
+Run the sample:
 
-    wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
-
-Build and run:
-
-    make; ./shaper
+    make; ./tinn
