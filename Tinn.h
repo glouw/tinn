@@ -1,23 +1,25 @@
-#ifndef _TINN_H_
-#define _TINN_H_
+#pragma once
 
 typedef struct
 {
-    double* w;
-    double* b;
-    double* h;
-    double* o;
+    double* w; // Weights.
+    double* b; // Biases.
+    double* h; // Hidden layer.
+    double* o; // Output layer.
+
+    // Number of biases - always two - Tinn only supports a single hidden layer.
     int nb;
-    int nips;
-    int nhid;
-    int nops;
+
+    int nips; // Number of inputs.
+    int nhid; // Number of hidden neurons.
+    int nops; // Number of outputs.
 }
 Tinn;
 
-extern double xttrain(Tinn, double* in, double* tg, double rate);
+double xttrain(const Tinn, const double* in, const double* tg, double rate);
 
-extern Tinn xtbuild(int nips, int nhid, int nops);
+Tinn xtbuild(int nips, int nhid, int nops);
 
-extern void xtfree(Tinn);
+void xtfree(Tinn);
 
-#endif
+double* xpredict(const Tinn, const double* in);

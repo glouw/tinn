@@ -4,110 +4,114 @@
 #include <math.h>
 #include <time.h>
 
-static double error(Tinn t, double* tg)
+// Error function.
+static double err(double a, double b)
 {
-    double error = 0.0;
-    int i;
-    for(i = 0; i < t.nops; i++)
-        error += 0.5 * pow(tg[i] - t.o[i], 2.0);
-    return error;
+    return 0.5 * pow(a - b, 2.0);
 }
 
-static void backwards(Tinn t, double* in, double* tg, double rate)
+// Partial derivative of error function.
+static double pderr(double a, double b)
 {
-    double* x = t.w + t.nhid * t.nips;
-    int i;
-    for(i = 0; i < t.nhid; i++)
-    {
-        double sum = 0.0;
-        int j;
-        /* Calculate total error change with respect to output */
-        for(j = 0; j < t.nops; j++)
-        {
-            double a = t.o[j] - tg[j];
-            double b = t.o[j] * (1 - t.o[j]);
-            double c = x[j * t.nhid + i];
-            sum += a * b * c;
-        }
-        /* Correct weights in input to hidden layer */
-        for(j = 0; j < t.nips; j++)
-        {
-            double a = sum;
-            double b = t.h[i] * (1 - t.h[i]);
-            double c = in[j];
-            t.w[i * t.nips + j] -= rate * a * b * c;
-        }
-        /* Correct weights in hidden to output layer */
-        for(j = 0; j < t.nops; j++)
-        {
-            double a = t.o[j] - tg[j];
-            double b = t.o[j] * (1 - t.o[j]);
-            double c = t.h[i];
-            x[j * t.nhid + i] -= rate * a * b * c;
-        }
-    }
+    return a - b;
 }
 
-static double act(double net)
+// Total error.
+static double terr(const double* tg, const double* o, int size)
 {
-    return 1.0 / (1.0 + exp(-net));
+    double sum = 0.0;
+    for(int i = 0; i < size; i++)
+        sum += err(tg[i], o[i]);
+    return sum;
 }
 
-static double frand(void)
+// Activation function.
+static double act(double a)
+{
+    return 1.0 / (1.0 + exp(-a));
+}
+
+// Partial derivative of activation function.
+static double pdact(double a)
+{
+    return a * (1.0 - a);
+}
+
+// Floating point random from 0.0 - 1.0.
+static double frand()
 {
     return rand() / (double) RAND_MAX;
 }
 
-static void forewards(Tinn t, double* in)
+// Back propagation.
+static void backwards(const Tinn t, const double* in, const double* tg, double rate)
 {
     double* x = t.w + t.nhid * t.nips;
-    int i;
-    /* Calculate hidden layer neuron values */
-    for(i = 0; i < t.nhid; i++)
+    for(int i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
-        int j;
-        for(j = 0; j < t.nips; j++)
+        // Calculate total error change with respect to output.
+        for(int j = 0; j < t.nops; j++)
         {
-            double a = in[j];
-            double b = t.w[i * t.nips + j];
-            sum += a * b;
+            double a = pderr(t.o[j], tg[j]);
+            double b = pdact(t.o[j]);
+            sum += a * b * x[j * t.nhid + i];
+            // Correct weights in hidden to output layer.
+            x[j * t.nhid + i] -= rate * a * b * t.h[i];
         }
+        // Correct weights in input to hidden layer.
+        for(int j = 0; j < t.nips; j++)
+            t.w[i * t.nips + j] -= rate * sum * pdact(t.h[i]) * in[j];
+    }
+}
+
+// Forward propagation.
+static void forewards(const Tinn t, const double* in)
+{
+    double* x = t.w + t.nhid * t.nips;
+    // Calculate hidden layer neuron values.
+    for(int i = 0; i < t.nhid; i++)
+    {
+        double sum = 0.0;
+        for(int j = 0; j < t.nips; j++)
+            sum += in[j] * t.w[i * t.nips + j];
         t.h[i] = act(sum + t.b[0]);
     }
-    /* Calculate output layer neuron values */
-    for(i = 0; i < t.nops; i++)
+    // Calculate output layer neuron values.
+    for(int i = 0; i < t.nops; i++)
     {
         double sum = 0.0;
-        int j;
-        for(j = 0; j < t.nhid; j++)
-        {
-            double a = t.h[j];
-            double b = x[i * t.nhid + j];
-            sum += a * b;
-        }
+        for(int j = 0; j < t.nhid; j++)
+            sum += t.h[j] * x[i * t.nhid + j];
         t.o[i] = act(sum + t.b[1]);
     }
 }
 
-static void twrand(Tinn t)
+// Randomizes weights and biases.
+static void twrand(const Tinn t)
 {
     int wgts = t.nhid * (t.nips + t.nops);
-    int i;
-    for(i = 0; i < wgts; i++) t.w[i] = frand();
-    for(i = 0; i < t.nb; i++) t.b[i] = frand();
+    for(int i = 0; i < wgts; i++) t.w[i] = frand() - 0.5;
+    for(int i = 0; i < t.nb; i++) t.b[i] = frand() - 0.5;
 }
 
-double xttrain(Tinn t, double* in, double* tg, double rate)
+double* xpredict(const Tinn t, const double* in)
+{
+    forewards(t, in);
+    return t.o;
+}
+
+double xttrain(const Tinn t, const double* in, const double* tg, double rate)
 {
     forewards(t, in);
     backwards(t, in, tg, rate);
-    return error(t, tg);
+    return terr(tg, t.o, t.nops);
 }
 
 Tinn xtbuild(int nips, int nhid, int nops)
 {
     Tinn t;
+    // Tinn only supports one hidden layer so there are two biases.
     t.nb = 2;
     t.w = (double*) calloc(nhid * (nips + nops), sizeof(*t.w));
     t.b = (double*) calloc(t.nb, sizeof(*t.b));
@@ -121,7 +125,7 @@ Tinn xtbuild(int nips, int nhid, int nops)
     return t;
 }
 
-void xtfree(Tinn t)
+void xtfree(const Tinn t)
 {
     free(t.w);
     free(t.h);
