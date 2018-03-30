@@ -2,7 +2,8 @@
 
 typedef struct
 {
-    double* w; // Weights.
+    double* w; // All the weights.
+    double* x; // Hidden to output layer weights.
     double* b; // Biases.
     double* h; // Hidden layer.
     double* o; // Output layer.

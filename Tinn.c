@@ -47,7 +47,6 @@ static double frand()
 // Back propagation.
 static void backwards(const Tinn t, const double* in, const double* tg, double rate)
 {
-    double* x = t.w + t.nhid * t.nips;
     for(int i = 0; i < t.nhid; i++)
     {
         double sum = 0.0;
@@ -56,9 +55,9 @@ static void backwards(const Tinn t, const double* in, const double* tg, double r
         {
             double a = pderr(t.o[j], tg[j]);
             double b = pdact(t.o[j]);
-            sum += a * b * x[j * t.nhid + i];
+            sum += a * b * t.x[j * t.nhid + i];
             // Correct weights in hidden to output layer.
-            x[j * t.nhid + i] -= rate * a * b * t.h[i];
+            t.x[j * t.nhid + i] -= rate * a * b * t.h[i];
         }
         // Correct weights in input to hidden layer.
         for(int j = 0; j < t.nips; j++)
@@ -69,7 +68,6 @@ static void backwards(const Tinn t, const double* in, const double* tg, double r
 // Forward propagation.
 static void forewards(const Tinn t, const double* in)
 {
-    double* x = t.w + t.nhid * t.nips;
     // Calculate hidden layer neuron values.
     for(int i = 0; i < t.nhid; i++)
     {
@@ -83,7 +81,7 @@ static void forewards(const Tinn t, const double* in)
     {
         double sum = 0.0;
         for(int j = 0; j < t.nhid; j++)
-            sum += t.h[j] * x[i * t.nhid + j];
+            sum += t.h[j] * t.x[i * t.nhid + j];
         t.o[i] = act(sum + t.b[1]);
     }
 }
@@ -115,6 +113,7 @@ Tinn xtbuild(int nips, int nhid, int nops)
     t.nb = 2;
     t.nw = nhid * (nips + nops);
     t.w = (double*) calloc(t.nw, sizeof(*t.w));
+    t.x = t.w + nhid * nips;
     t.b = (double*) calloc(t.nb, sizeof(*t.b));
     t.h = (double*) calloc(nhid, sizeof(*t.h));
     t.o = (double*) calloc(nops, sizeof(*t.o));
