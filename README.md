@@ -1,6 +1,6 @@
 ![](img/logo.PNG)
 
-Tinn (Tiny Neural Network) is a dependency free ANSI-C neural network library.
+Tinn (Tiny Neural Network) is a dependency free neural network library written in C99.
 
     #include "Tinn.h"
     #include <stdio.h>
@@ -23,10 +23,14 @@ Tinn (Tiny Neural Network) is a dependency free ANSI-C neural network library.
         return 0;
     }
 
-For a demo, get some data:
+For a quick demo, get some training data:
 
     wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 
-And then build and run the test sample:
+And if you're on Linux / MacOS just build and run:
 
     make; ./tinn
+
+If you're on Windows it's:
+
+    mingw32-make & tinn.exe
