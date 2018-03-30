@@ -134,14 +134,14 @@ int main()
     // Learning rate is annealed and thus not constant.
     // It can be fine tuned along with the number of hidden layers.
     // Feel free to modify the anneal rate as well.
-    const int nhid = 32;
+    const int nhid = 30;
     double rate = 1.0;
-    const double anneal = 0.9;
+    const double anneal = 0.99;
     // Load the training set.
     const Data data = build("semeion.data", nips, nops);
     // Train, baby, train.
     const Tinn tinn = xtbuild(nips, nhid, nops);
-    for(int i = 0; i < 30; i++)
+    for(int i = 0; i < 100; i++)
     {
         shuffle(data);
         double error = 0.0;
