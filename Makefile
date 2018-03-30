@@ -1,3 +1,5 @@
+# Makefile with support for Windows (mingw32) and NIX (clang / gcc).
+
 CC = gcc
 
 NAME = tinn
@@ -7,6 +9,7 @@ SRCS += test.c
 SRCS += Tinn.c
 
 # CompSpec defined in windows environment.
+
 ifdef ComSpec
 	BIN = $(NAME).exe
 else
@@ -32,10 +35,12 @@ else
 endif
 
 # Link.
+
 $(BIN): $(SRCS:.c=.o)
 	$(CC) $(CFLAGS) $(SRCS:.c=.o) $(LDFLAGS) -o $(BIN)
 
 # Compile.
+
 %.o : %.c Makefile
 	$(CC) $(CFLAGS) -MMD -MP -MT $@ -MF $*.td -c $<
 	$(RM) $*.d
