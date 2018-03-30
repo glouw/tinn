@@ -7,7 +7,7 @@ Tinn (Tiny Neural Network) is a dependency free neural network library written i
 
     #define len(a) ((int) (sizeof(a) / sizeof(*a)))
 
-    int main(void)
+    int main()
     {
         double in[] = { 0.05, 0.10 };
         double tg[] = { 0.01, 0.99 };

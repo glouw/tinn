@@ -1,4 +1,4 @@
-# Makefile with support for Windows (mingw32) and NIX (clang / gcc).
+# Makefile with support for Windows (mingw32) and NIX (clang / gcc)
 
 CC = gcc
 
