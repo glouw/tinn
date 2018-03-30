@@ -1,6 +1,7 @@
 ![](img/logo.PNG)
 
 Tinn (Tiny Neural Network) is a 200 line dependency free neural network library written in C99.
+Tinn can be compiled with any C++ compiler as well.
 
     #include "Tinn.h"
     #include <stdio.h>
