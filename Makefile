@@ -52,6 +52,7 @@ clean:
 	$(RM) vgcore.*
 	$(RM) cachegrind.out.*
 	$(RM) callgrind.out.*
+	$(RM) saved.tinn
 	$(RM) $(BIN)
 	$(RM) $(SRCS:.c=.o)
 	$(RM) $(SRCS:.c=.d)
