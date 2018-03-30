@@ -1,5 +1,6 @@
 #include "Tinn.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
@@ -90,8 +91,7 @@ static void forewards(const Tinn t, const double* in)
 // Randomizes weights and biases.
 static void twrand(const Tinn t)
 {
-    int wgts = t.nhid * (t.nips + t.nops);
-    for(int i = 0; i < wgts; i++) t.w[i] = frand() - 0.5;
+    for(int i = 0; i < t.nw; i++) t.w[i] = frand() - 0.5;
     for(int i = 0; i < t.nb; i++) t.b[i] = frand() - 0.5;
 }
 
@@ -113,7 +113,8 @@ Tinn xtbuild(int nips, int nhid, int nops)
     Tinn t;
     // Tinn only supports one hidden layer so there are two biases.
     t.nb = 2;
-    t.w = (double*) calloc(nhid * (nips + nops), sizeof(*t.w));
+    t.nw = nhid * (nips + nops);
+    t.w = (double*) calloc(t.nw, sizeof(*t.w));
     t.b = (double*) calloc(t.nb, sizeof(*t.b));
     t.h = (double*) calloc(nhid, sizeof(*t.h));
     t.o = (double*) calloc(nops, sizeof(*t.o));
@@ -125,9 +126,38 @@ Tinn xtbuild(int nips, int nhid, int nops)
     return t;
 }
 
+void xtsave(const Tinn t, const char* path)
+{
+    FILE* file = fopen(path, "w");
+    // Header.
+    fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
+    // Biases and weights.
+    for(int i = 0; i < t.nb; i++) fprintf(file, "%lf\n", t.b[i]);
+    for(int i = 0; i < t.nw; i++) fprintf(file, "%lf\n", t.w[i]);
+    fclose(file);
+}
+
+Tinn xtload(const char* path)
+{
+    FILE* file = fopen(path, "r");
+    int nips = 0;
+    int nhid = 0;
+    int nops = 0;
+    // Header.
+    fscanf(file, "%d %d %d\n", &nips, &nhid, &nops);
+    // A new tinn is returned.
+    Tinn t = xtbuild(nips, nhid, nips);
+    // Biases and weights.
+    for(int i = 0; i < t.nb; i++) fscanf(file, "%lf\n", &t.b[i]);
+    for(int i = 0; i < t.nw; i++) fscanf(file, "%lf\n", &t.w[i]);
+    fclose(file);
+    return t;
+}
+
 void xtfree(const Tinn t)
 {
     free(t.w);
+    free(t.b);
     free(t.h);
     free(t.o);
 }

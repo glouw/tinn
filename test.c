@@ -133,12 +133,12 @@ int main()
     // Hyper Parameters.
     // Learning rate is annealed and thus not constant.
     const int nhid = 32;
-    double rate = 0.5;
+    double rate = 1.0;
     // Load the training set.
     const Data data = build("semeion.data", nips, nops);
-    // Rock and roll.
+    // Train, baby, train.
     const Tinn tinn = xtbuild(nips, nhid, nops);
-    for(int i = 0; i < 100; i++)
+    for(int i = 0; i < 30; i++)
     {
         shuffle(data);
         double error = 0.0;
@@ -149,16 +149,22 @@ int main()
             error += xttrain(tinn, in, tg, rate);
         }
         printf("error %.12f :: rate %f\n", error / data.rows, rate);
-        rate *= 0.99;
+        rate *= 0.9;
     }
+    // This is how you save the neural network to disk.
+    xtsave(tinn, "saved.tinn");
+    xtfree(tinn);
+    // This is how you load the neural network from disk.
+    const Tinn loaded = xtload("saved.tinn");
     // Ideally, you would load a testing set for predictions,
     // but for the sake of brevity the training set is reused.
     const double* const in = data.in[0];
     const double* const tg = data.tg[0];
-    const double* const pd = xpredict(tinn, in);
+    const double* const pd = xpredict(loaded, in);
     for(int i = 0; i < data.nops; i++) { printf("%f ", tg[i]); } printf("\n");
     for(int i = 0; i < data.nops; i++) { printf("%f ", pd[i]); } printf("\n");
-    xtfree(tinn);
+    // Cleanup.
+    xtfree(loaded);
     dfree(data);
     return 0;
 }
