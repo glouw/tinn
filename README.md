@@ -13,8 +13,7 @@ Tinn (Tiny Neural Network) is a dependency free neural network library written i
         double tg[] = { 0.01, 0.99 };
         /* Two hidden nuerons */
         const Tinn tinn = xtbuild(len(in), 2, len(tg));
-        int i;
-        for(i = 0; i < 10000; i++)
+        for(int i = 0; i < 1000; i++)
         {
             double error = xttrain(tinn, in, tg, 0.5);
             printf("%.12f\n", error);
