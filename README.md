@@ -11,7 +11,7 @@ Tinn (Tiny Neural Network) is a dependency free neural network library written i
     {
         double in[] = { 0.05, 0.10 };
         double tg[] = { 0.01, 0.99 };
-        /* Two hidden nuerons */
+        /* Two hidden neurons */
         const Tinn tinn = xtbuild(len(in), 2, len(tg));
         for(int i = 0; i < 1000; i++)
         {
