@@ -66,7 +66,7 @@ static void backwards(const Tinn t, const double* in, const double* tg, double r
 }
 
 // Forward propagation.
-static void forewards(const Tinn t, const double* in)
+static void forwards(const Tinn t, const double* in)
 {
     // Calculate hidden layer neuron values.
     for(int i = 0; i < t.nhid; i++)
