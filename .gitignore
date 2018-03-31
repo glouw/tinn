@@ -1,4 +1,5 @@
 *.dat*
+*.txt
 *.o
 *.d
 tinn

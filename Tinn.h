@@ -2,11 +2,11 @@
 
 typedef struct
 {
-    double* w; // All the weights.
-    double* x; // Hidden to output layer weights.
-    double* b; // Biases.
-    double* h; // Hidden layer.
-    double* o; // Output layer.
+    float* w; // All the weights.
+    float* x; // Hidden to output layer weights.
+    float* b; // Biases.
+    float* h; // Hidden layer.
+    float* o; // Output layer.
 
     // Number of biases - always two - Tinn only supports a single hidden layer.
     int nb;
@@ -22,7 +22,7 @@ Tinn;
 
 // Trains a tinn with an input and target output with a learning rate.
 // Returns error rate of the neural network.
-double xttrain(const Tinn, const double* in, const double* tg, double rate);
+float xttrain(const Tinn, const float* in, const float* tg, float rate);
 
 // Builds a new tinn object given number of inputs (nips),
 // number of hidden neurons for the hidden layer (nhid),
@@ -30,7 +30,7 @@ double xttrain(const Tinn, const double* in, const double* tg, double rate);
 Tinn xtbuild(int nips, int nhid, int nops);
 
 // Returns an output prediction given an input.
-double* xpredict(const Tinn, const double* in);
+float* xpredict(const Tinn, const float* in);
 
 // Saves the tinn to disk.
 void xtsave(const Tinn, const char* path);
