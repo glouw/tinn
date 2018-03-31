@@ -151,7 +151,7 @@ int main()
             const float* const tg = data.tg[j];
             error += xttrain(tinn, in, tg, rate);
         }
-        printf("error %.12f :: rate %f\n", error / data.rows, rate);
+        printf("error %.12f :: rate %f\n", (double) error / data.rows, (double) rate);
         rate *= anneal;
     }
     // This is how you save the neural network to disk.
@@ -165,8 +165,8 @@ int main()
     const float* const in = data.in[0];
     const float* const tg = data.tg[0];
     const float* const pd = xpredict(loaded, in);
-    for(int i = 0; i < data.nops; i++) { printf("%f ", tg[i]); } printf("\n");
-    for(int i = 0; i < data.nops; i++) { printf("%f ", pd[i]); } printf("\n");
+    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) tg[i]); } printf("\n");
+    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) pd[i]); } printf("\n");
     // All done. Let's clean up.
     xtfree(loaded);
     dfree(data);
