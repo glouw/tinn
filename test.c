@@ -134,8 +134,8 @@ int main()
     // Learning rate is annealed and thus not constant.
     // It can be fine tuned along with the number of hidden layers.
     // Feel free to modify the anneal rate as well.
-    const int nhid = 8;
-    float rate = 0.5f;
+    const int nhid = 28;
+    float rate = 1.0f;
     const float anneal = 0.99f;
     // Load the training set.
     const Data data = build("semeion.data", nips, nops);
