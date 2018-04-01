@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
 
 // Error function.
 static float err(float a, float b)
@@ -120,7 +119,6 @@ Tinn xtbuild(int nips, int nhid, int nops)
     t.nips = nips;
     t.nhid = nhid;
     t.nops = nops;
-    srand(time(0));
     twrand(t);
     return t;
 }

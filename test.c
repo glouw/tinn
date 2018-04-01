@@ -1,5 +1,6 @@
 #include "Tinn.h"
 #include <stdio.h>
+#include <time.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -126,6 +127,8 @@ static Data build(const char* path, const int nips, const int nops)
 
 int main()
 {
+    // Tinn does not seed the random number generator.
+    srand(time(0));
     // Input and output size is harded coded here as machine learning
     // repositories usually don't include the input and output size in the data itself.
     const int nips = 256;
