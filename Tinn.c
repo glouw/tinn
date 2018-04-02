@@ -66,7 +66,7 @@ static void backwards(const Tinn t, const float* in, const float* tg, float rate
 }
 
 // Forward propagation.
-static void forewards(const Tinn t, const float* in)
+static void forwards(const Tinn t, const double* in)
 {
     // Calculate hidden layer neuron values.
     for(int i = 0; i < t.nhid; i++)
@@ -123,13 +123,13 @@ static void* ecalloc(const size_t nmemb, const size_t size)
 
 float* xpredict(const Tinn t, const float* in)
 {
-    forewards(t, in);
+    forwards(t, in);
     return t.o;
 }
 
 float xttrain(const Tinn t, const float* in, const float* tg, float rate)
 {
-    forewards(t, in);
+    forwards(t, in);
     backwards(t, in, tg, rate);
     return terr(tg, t.o, t.nops);
 }
