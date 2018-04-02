@@ -1,12 +1,13 @@
 #include "Tinn.h"
 #include <stdio.h>
+#include <time.h>
 #include <string.h>
 #include <stdlib.h>
 
 typedef struct
 {
-    double** in;
-    double** tg;
+    float** in;
+    float** tg;
     int nips;
     int nops;
     int rows;
@@ -46,11 +47,11 @@ static char* readln(FILE* const file)
     return line;
 }
 
-static double** new2d(const int rows, const int cols)
+static float** new2d(const int rows, const int cols)
 {
-    double** row = (double**) malloc((rows) * sizeof(double*));
+    float** row = (float**) malloc((rows) * sizeof(float*));
     for(int r = 0; r < rows; r++)
-        row[r] = (double*) malloc((cols) * sizeof(double));
+        row[r] = (float*) malloc((cols) * sizeof(float));
     return row;
 }
 
@@ -67,7 +68,7 @@ static void parse(const Data data, char* line, const int row)
     const int cols = data.nips + data.nops;
     for(int col = 0; col < cols; col++)
     {
-        const double val = atof(strtok(col == 0 ? line : NULL, " "));
+        const float val = atof(strtok(col == 0 ? line : NULL, " "));
         if(col < data.nips)
             data.in[row][col] = val;
         else
@@ -91,8 +92,8 @@ static void shuffle(const Data d)
     for(int a = 0; a < d.rows; a++)
     {
         const int b = rand() % d.rows;
-        double* ot = d.tg[a];
-        double* it = d.in[a];
+        float* ot = d.tg[a];
+        float* it = d.in[a];
         // Swap output.
         d.tg[a] = d.tg[b];
         d.tg[b] = ot;
@@ -126,6 +127,8 @@ static Data build(const char* path, const int nips, const int nops)
 
 int main()
 {
+    // Tinn does not seed the random number generator.
+    srand(time(0));
     // Input and output size is harded coded here as machine learning
     // repositories usually don't include the input and output size in the data itself.
     const int nips = 256;
@@ -134,9 +137,9 @@ int main()
     // Learning rate is annealed and thus not constant.
     // It can be fine tuned along with the number of hidden layers.
     // Feel free to modify the anneal rate as well.
-    const int nhid = 30;
-    double rate = 1.0;
-    const double anneal = 0.99;
+    const int nhid = 28;
+    float rate = 1.0f;
+    const float anneal = 0.99f;
     // Load the training set.
     const Data data = build("semeion.data", nips, nops);
     // Train, baby, train.
@@ -144,14 +147,14 @@ int main()
     for(int i = 0; i < 100; i++)
     {
         shuffle(data);
-        double error = 0.0;
+        float error = 0.0f;
         for(int j = 0; j < data.rows; j++)
         {
-            const double* const in = data.in[j];
-            const double* const tg = data.tg[j];
+            const float* const in = data.in[j];
+            const float* const tg = data.tg[j];
             error += xttrain(tinn, in, tg, rate);
         }
-        printf("error %.12f :: rate %f\n", error / data.rows, rate);
+        printf("error %.12f :: rate %f\n", (double) error / data.rows, (double) rate);
         rate *= anneal;
     }
     // This is how you save the neural network to disk.
@@ -162,11 +165,11 @@ int main()
     // Now we do a prediction with the neural network we loaded from disk.
     // Ideally, we would also load a testing set to make the prediction with,
     // but for the sake of brevity here we just reuse the training set from earlier.
-    const double* const in = data.in[0];
-    const double* const tg = data.tg[0];
-    const double* const pd = xpredict(loaded, in);
-    for(int i = 0; i < data.nops; i++) { printf("%f ", tg[i]); } printf("\n");
-    for(int i = 0; i < data.nops; i++) { printf("%f ", pd[i]); } printf("\n");
+    const float* const in = data.in[0];
+    const float* const tg = data.tg[0];
+    const float* const pd = xpredict(loaded, in);
+    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) tg[i]); } printf("\n");
+    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) pd[i]); } printf("\n");
     // All done. Let's clean up.
     xtfree(loaded);
     dfree(data);
