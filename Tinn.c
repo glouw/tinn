@@ -154,7 +154,7 @@ Tinn xtbuild(int nips, int nhid, int nops)
 
 void xtsave(const Tinn t, const char* path)
 {
-    FILE* file = efopen(path, "w");
+    FILE* const file = efopen(path, "w");
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
@@ -165,7 +165,7 @@ void xtsave(const Tinn t, const char* path)
 
 Tinn xtload(const char* path)
 {
-    FILE* file = efopen(path, "r");
+    FILE* const file = efopen(path, "r");
     int nips = 0;
     int nhid = 0;
     int nops = 0;
