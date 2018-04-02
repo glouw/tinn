@@ -25,7 +25,6 @@ CFLAGS += -flto
 
 LDFLAGS =
 LDFLAGS += -lm
-LDFLAGS += -lSDL2
 
 ifdef ComSpec
 	RM = del /F /Q
