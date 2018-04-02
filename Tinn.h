@@ -8,11 +8,8 @@ typedef struct
     float* h; // Hidden layer.
     float* o; // Output layer.
 
-    // Number of biases - always two - Tinn only supports a single hidden layer.
-    int nb;
-
-    // Number of weights.
-    int nw;
+    int nb; // Number of biases - always two - Tinn only supports a single hidden layer.
+    int nw; // Number of weights.
 
     int nips; // Number of inputs.
     int nhid; // Number of hidden neurons.

@@ -52,8 +52,8 @@ static void backwards(const Tinn t, const float* in, const float* tg, float rate
         // Calculate total error change with respect to output.
         for(int j = 0; j < t.nops; j++)
         {
-            float a = pderr(t.o[j], tg[j]);
-            float b = pdact(t.o[j]);
+            const float a = pderr(t.o[j], tg[j]);
+            const float b = pdact(t.o[j]);
             sum += a * b * t.x[j * t.nhid + i];
             // Correct weights in hidden to output layer.
             t.x[j * t.nhid + i] -= rate * a * b * t.h[i];
@@ -125,7 +125,7 @@ Tinn xtbuild(int nips, int nhid, int nops)
 
 void xtsave(const Tinn t, const char* path)
 {
-    FILE* file = fopen(path, "w");
+    FILE* const file = fopen(path, "w");
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
@@ -136,14 +136,14 @@ void xtsave(const Tinn t, const char* path)
 
 Tinn xtload(const char* path)
 {
-    FILE* file = fopen(path, "r");
+    FILE* const file = fopen(path, "r");
     int nips = 0;
     int nhid = 0;
     int nops = 0;
     // Header.
     fscanf(file, "%d %d %d\n", &nips, &nhid, &nops);
     // A new tinn is returned.
-    Tinn t = xtbuild(nips, nhid, nips);
+    const Tinn t = xtbuild(nips, nhid, nips);
     // Biases and weights.
     for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
     for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
