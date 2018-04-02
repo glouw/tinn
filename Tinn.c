@@ -1,6 +1,7 @@
 #include "Tinn.h"
 
 #include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -111,11 +112,11 @@ Tinn xtbuild(int nips, int nhid, int nops)
     // Tinn only supports one hidden layer so there are two biases.
     t.nb = 2;
     t.nw = nhid * (nips + nops);
-    t.w = (float*) calloc(t.nw, sizeof(*t.w));
+    assert(t.w = (float*) calloc(t.nw, sizeof(*t.w)));
     t.x = t.w + nhid * nips;
-    t.b = (float*) calloc(t.nb, sizeof(*t.b));
-    t.h = (float*) calloc(nhid, sizeof(*t.h));
-    t.o = (float*) calloc(nops, sizeof(*t.o));
+    assert(t.b = (float*) calloc(t.nb, sizeof(*t.b)));
+    assert(t.h = (float*) calloc(nhid, sizeof(*t.h)));
+    assert(t.o = (float*) calloc(nops, sizeof(*t.o)));
     t.nips = nips;
     t.nhid = nhid;
     t.nops = nops;
@@ -125,7 +126,8 @@ Tinn xtbuild(int nips, int nhid, int nops)
 
 void xtsave(const Tinn t, const char* path)
 {
-    FILE* const file = fopen(path, "w");
+    FILE* file;
+    assert(file = fopen(path, "w"));
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
@@ -136,7 +138,8 @@ void xtsave(const Tinn t, const char* path)
 
 Tinn xtload(const char* path)
 {
-    FILE* const file = fopen(path, "r");
+    FILE* file;
+    assert(file = fopen(path, "r"));
     int nips = 0;
     int nhid = 0;
     int nops = 0;
