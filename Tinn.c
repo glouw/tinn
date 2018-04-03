@@ -154,18 +154,18 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
 
 void xtsave(const Tinn t, const char* const path)
 {
-    FILE* const file = efopen(path, "wb");
+    FILE* const file = efopen(path, "w");
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
-    for(int i = 0; i < t.nb; i++) fprintf(file, "%f\n", (double) t.b[i]);
-    for(int i = 0; i < t.nw; i++) fprintf(file, "%f\n", (double) t.w[i]);
+    for(int i = 0; i < t.nb; i++) fprintf(file, "%a\n", (double) t.b[i]);
+    for(int i = 0; i < t.nw; i++) fprintf(file, "%a\n", (double) t.w[i]);
     fclose(file);
 }
 
 Tinn xtload(const char* const path)
 {
-    FILE* const file = efopen(path, "rb");
+    FILE* const file = efopen(path, "r");
     int nips = 0;
     int nhid = 0;
     int nops = 0;
@@ -174,8 +174,8 @@ Tinn xtload(const char* const path)
     // A new tinn is returned.
     const Tinn t = xtbuild(nips, nhid, nops);
     // Biases and weights.
-    for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
-    for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
+    for(int i = 0; i < t.nb; i++) fscanf(file, "%a\n", &t.b[i]);
+    for(int i = 0; i < t.nw; i++) fscanf(file, "%a\n", &t.w[i]);
     fclose(file);
     return t;
 }
