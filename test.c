@@ -36,7 +36,7 @@ static char* readln(FILE* const file)
     int ch = EOF;
     int reads = 0;
     int size = 128;
-    char* line = ((char*) malloc((size) * sizeof(char)));
+    char* line = (char*) malloc((size) * sizeof(char));
     while((ch = getc(file)) != '\n' && ch != EOF)
     {
         line[reads++] = ch;
