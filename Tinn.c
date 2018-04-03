@@ -172,7 +172,7 @@ Tinn xtload(const char* path)
     // Header.
     fscanf(file, "%d %d %d\n", &nips, &nhid, &nops);
     // A new tinn is returned.
-    const Tinn t = xtbuild(nips, nhid, nips);
+    const Tinn t = xtbuild(nips, nhid, nops);
     // Biases and weights.
     for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
     for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
