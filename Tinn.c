@@ -18,7 +18,7 @@ static float pderr(const float a, const float b)
 }
 
 // Total error.
-static float terr(const float* const tg, const float* const o, const int size)
+static float toterr(const float* const tg, const float* const o, const int size)
 {
     float sum = 0.0f;
     for(int i = 0; i < size; i++)
@@ -45,7 +45,7 @@ static float frand()
 }
 
 // Back propagation.
-static void backwards(const Tinn t, const float* const in, const float* const tg, float rate)
+static void bprop(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     for(int i = 0; i < t.nhid; i++)
     {
@@ -66,7 +66,7 @@ static void backwards(const Tinn t, const float* const in, const float* const tg
 }
 
 // Forward propagation.
-static void forewards(const Tinn t, const float* const in)
+static void fprop(const Tinn t, const float* const in)
 {
     // Calculate hidden layer neuron values.
     for(int i = 0; i < t.nhid; i++)
@@ -121,17 +121,17 @@ static void* ecalloc(const size_t nmemb, const size_t size)
     return mem;
 }
 
-float* xpredict(const Tinn t, const float* const in)
+float* xtpredict(const Tinn t, const float* const in)
 {
-    forewards(t, in);
+    fprop(t, in);
     return t.o;
 }
 
 float xttrain(const Tinn t, const float* const in, const float* const tg, float rate)
 {
-    forewards(t, in);
-    backwards(t, in, tg, rate);
-    return terr(tg, t.o, t.nops);
+    fprop(t, in);
+    bprop(t, in, tg, rate);
+    return toterr(tg, t.o, t.nops);
 }
 
 Tinn xtbuild(const int nips, const int nhid, const int nops)
@@ -154,7 +154,7 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
 
 void xtsave(const Tinn t, const char* const path)
 {
-    FILE* const file = efopen(path, "w");
+    FILE* const file = efopen(path, "wb");
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
@@ -165,7 +165,7 @@ void xtsave(const Tinn t, const char* const path)
 
 Tinn xtload(const char* const path)
 {
-    FILE* const file = efopen(path, "r");
+    FILE* const file = efopen(path, "rb");
     int nips = 0;
     int nhid = 0;
     int nops = 0;

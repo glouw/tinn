@@ -19,7 +19,7 @@ Tinn;
 
 // Trains a tinn with an input and target output with a learning rate.
 // Returns error rate of the neural network.
-float xttrain(const Tinn, const float* in, const float* tg, float rate);
+float xttrain(Tinn, const float* in, const float* tg, float rate);
 
 // Builds a new tinn object given number of inputs (nips),
 // number of hidden neurons for the hidden layer (nhid),
@@ -27,7 +27,7 @@ float xttrain(const Tinn, const float* in, const float* tg, float rate);
 Tinn xtbuild(int nips, int nhid, int nops);
 
 // Returns an output prediction given an input.
-float* xpredict(const Tinn, const float* in);
+float* xtpredict(Tinn, const float* in);
 
 // Saves the tinn to disk.
 void xtsave(Tinn, const char* path);
