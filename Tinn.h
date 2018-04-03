@@ -30,10 +30,10 @@ Tinn xtbuild(int nips, int nhid, int nops);
 float* xpredict(const Tinn, const float* in);
 
 // Saves the tinn to disk.
-void xtsave(const Tinn, const char* path);
+void xtsave(Tinn, const char* path);
 
 // Loads a new tinn from disk.
 Tinn xtload(const char* path);
 
 // Frees a tinn from the heap.
-void xtfree(const Tinn);
+void xtfree(Tinn);

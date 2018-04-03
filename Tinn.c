@@ -6,19 +6,19 @@
 #include <math.h>
 
 // Error function.
-static float err(float a, float b)
+static float err(const float a, const float b)
 {
     return 0.5f * powf(a - b, 2.0f);
 }
 
 // Partial derivative of error function.
-static float pderr(float a, float b)
+static float pderr(const float a, const float b)
 {
     return a - b;
 }
 
 // Total error.
-static float terr(const float* tg, const float* o, int size)
+static float terr(const float* const tg, const float* const o, const int size)
 {
     float sum = 0.0f;
     for(int i = 0; i < size; i++)
@@ -27,13 +27,13 @@ static float terr(const float* tg, const float* o, int size)
 }
 
 // Activation function.
-static float act(float a)
+static float act(const float a)
 {
     return 1.0f / (1.0f + expf(-a));
 }
 
 // Partial derivative of activation function.
-static float pdact(float a)
+static float pdact(const float a)
 {
     return a * (1.0f - a);
 }
@@ -45,7 +45,7 @@ static float frand()
 }
 
 // Back propagation.
-static void backwards(const Tinn t, const float* in, const float* tg, float rate)
+static void backwards(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     for(int i = 0; i < t.nhid; i++)
     {
@@ -66,7 +66,7 @@ static void backwards(const Tinn t, const float* in, const float* tg, float rate
 }
 
 // Forward propagation.
-static void forewards(const Tinn t, const float* in)
+static void forewards(const Tinn t, const float* const in)
 {
     // Calculate hidden layer neuron values.
     for(int i = 0; i < t.nhid; i++)
@@ -121,20 +121,20 @@ static void* ecalloc(const size_t nmemb, const size_t size)
     return mem;
 }
 
-float* xpredict(const Tinn t, const float* in)
+float* xpredict(const Tinn t, const float* const in)
 {
     forewards(t, in);
     return t.o;
 }
 
-float xttrain(const Tinn t, const float* in, const float* tg, float rate)
+float xttrain(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     forewards(t, in);
     backwards(t, in, tg, rate);
     return terr(tg, t.o, t.nops);
 }
 
-Tinn xtbuild(int nips, int nhid, int nops)
+Tinn xtbuild(const int nips, const int nhid, const int nops)
 {
     Tinn t;
     // Tinn only supports one hidden layer so there are two biases.
@@ -152,7 +152,7 @@ Tinn xtbuild(int nips, int nhid, int nops)
     return t;
 }
 
-void xtsave(const Tinn t, const char* path)
+void xtsave(const Tinn t, const char* const path)
 {
     FILE* const file = efopen(path, "w");
     // Header.
@@ -163,7 +163,7 @@ void xtsave(const Tinn t, const char* path)
     fclose(file);
 }
 
-Tinn xtload(const char* path)
+Tinn xtload(const char* const path)
 {
     FILE* const file = efopen(path, "r");
     int nips = 0;
