@@ -1,3 +1,26 @@
+// gcc test.c Tinn.c -lm
+//
+// Tinn does not include functionality for loading
+// and parsing data sets as all data sets are different.
+//
+// This example shows how to open an example data file from the machine learning archives.
+// The training data consists of hand written digits and can be found at:
+//
+//   http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
+//
+// Each line is one digit. A digit consists of 256 pixels (16 x 16 display).
+// Each line finishes with 10 digits indicating the digit:
+//
+//   0: 1 0 0 0 0 0 0 0 0 0
+//   1: 0 1 0 0 0 0 0 0 0 0
+//   2: 0 0 1 0 0 0 0 0 0 0
+//   3: 0 0 0 1 0 0 0 0 0 0
+//   4: 0 0 0 0 1 0 0 0 0 0
+//   ...
+//   9: 0 0 0 0 0 0 0 0 0 1
+//
+// This gives 256 inputs and 10 outputs to the neural network.
+
 #include "Tinn.h"
 #include <stdio.h>
 #include <time.h>
@@ -125,8 +148,6 @@ static Data build(const char* path, const int nips, const int nops)
     return data;
 }
 
-// This example learns hand written digits.
-// Be sure to first get the training data from http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 int main()
 {
     // Tinn does not seed the random number generator.
