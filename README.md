@@ -2,55 +2,7 @@
 
 Tinn (Tiny Neural Network) is a 200 line dependency free neural network library written in C99.
 
-```c
-#include "Tinn.h"
-#include <stdio.h>
-
-#define SETS 4
-#define NIPS 2
-#define NHID 8
-#define NOPS 1
-#define ITER 2000
-#define RATE 1.0f
-
-int main()
-{
-    // This example learns XOR.
-    float in[SETS][NIPS] = {
-        { 0, 0 },
-        { 0, 1 },
-        { 1, 0 },
-        { 1, 1 },
-    };
-    float tg[SETS][NOPS] = {
-        { 0 },
-        { 1 },
-        { 1 },
-        { 0 },
-    };
-    // Build.
-    const Tinn tinn = xtbuild(NIPS, NHID, NOPS);
-    // Train.
-    for(int i = 0; i < ITER; i++)
-    {
-        float error = 0.0f;
-        for(int j = 0; j < SETS; j++)
-            error += xttrain(tinn, in[j], tg[j], RATE);
-        printf("%.12f\n", error / SETS);
-    }
-    // Predict.
-    for(int i = 0; i < SETS; i++)
-    {
-        const float* pd = xtpredict(tinn, in[i]);
-        printf("%f :: %f\n", tg[i][0], (double) pd[0]);
-    }
-    // Cleanup.
-    xtfree(tinn);
-    return 0;
-}
-```
-
-For a more complicated demo on how to learn hand written digits, get some training data:
+For a demo on how to learn hand written digits, get some training data:
 
     wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 
@@ -61,10 +13,6 @@ And if you're on Linux / MacOS just build and run Tinn with the test file:
 If you're on Windows it's:
 
     mingw32-make & tinn.exe
-
-For the layman not accustomed to makefiles the makefile devolves into:
-
-    gcc test.c Tinn.c -lm
 
 The training data consists of hand written digits written both slowly and quickly.
 Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
