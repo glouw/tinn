@@ -106,10 +106,10 @@ your learning rate by 0.99 every training iteration. This will zero in on a good
 
 # Disclaimer
 
+Tinn is a practice in minimalism.
+
 Tinn is not a fully featured neural network C library like Kann, or Genann:
 
     https://github.com/attractivechaos/kann
 
     https://github.com/codeplea/genann
-
-Tinn is minimal and easy to digest.
