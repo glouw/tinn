@@ -76,3 +76,13 @@ At the end of the line 10 digits signify the digit:
 This gives 10 outputs to the neural network. The test program will output the
 accuracy for each digit. Expect above 99% accuracy for the correct digit, and
 less that 1% accuracy for the other digits.
+
+# Disclaimer
+
+Tinn is not a fully featured neural network C library like Kann, or Genann:
+
+    https://github.com/attractivechaos/kann
+
+    https://github.com/codeplea/genann
+
+Tinn is minimal and easy to digest.
