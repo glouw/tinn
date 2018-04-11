@@ -38,3 +38,5 @@ void xtsave(Tinn, const char* path);
 Tinn xtload(const char* path);
 
 void xtfree(Tinn);
+
+void xtprint(const float* arr, const int size);

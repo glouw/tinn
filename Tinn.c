@@ -196,3 +196,10 @@ void xtfree(const Tinn t)
     free(t.h);
     free(t.o);
 }
+
+void xtprint(const float* arr, const int size)
+{
+    for(int i = 0; i < size; i++)
+        printf("%f ", (double) arr[i]);
+    printf("\n");
+}
