@@ -8,7 +8,7 @@
 // Error function.
 static float err(const float a, const float b)
 {
-    return 0.5f * powf(a - b, 2.0f);
+    return 0.5f * (a - b) * (a - b);
 }
 
 // Partial derivative of error function.
