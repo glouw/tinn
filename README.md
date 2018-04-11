@@ -14,6 +14,7 @@ Tinn (Tiny Neural Network) is a 200 line dependency free neural network library 
 
     int main()
     {
+        // This example learns XOR.
         float in[SETS][NIPS] = {
             { 0, 0 },
             { 0, 1 },
@@ -47,17 +48,21 @@ Tinn (Tiny Neural Network) is a 200 line dependency free neural network library 
         return 0;
     }
 
-For a quick demo, get some training data:
+For a more complicated demo on how to learn hand written digits, get some training data:
 
     wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 
-And if you're on Linux / MacOS just build and run:
+And if you're on Linux / MacOS just build and run Tinn with the test file:
 
     make; ./tinn
 
 If you're on Windows it's:
 
     mingw32-make & tinn.exe
+
+For the layman not accustomed to makefiles the makefile devolves into:
+
+    gcc test.c Tinn.c -lm
 
 The training data consists of hand written digits written both slowly and quickly.
 Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
