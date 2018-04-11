@@ -125,6 +125,8 @@ static Data build(const char* path, const int nips, const int nops)
     return data;
 }
 
+// This example learns hand written digits.
+// Be sure to first get the training data from http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 int main()
 {
     // Tinn does not seed the random number generator.
