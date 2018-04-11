@@ -121,12 +121,15 @@ static void* ecalloc(const size_t nmemb, const size_t size)
     return mem;
 }
 
+// Returns an output prediction given an input.
 float* xtpredict(const Tinn t, const float* const in)
 {
     fprop(t, in);
     return t.o;
 }
 
+// Trains a tinn with an input and target output with a learning rate.
+// Returns error rate of the neural network.
 float xttrain(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     fprop(t, in);
@@ -134,6 +137,9 @@ float xttrain(const Tinn t, const float* const in, const float* const tg, float 
     return toterr(tg, t.o, t.nops);
 }
 
+// Builds a new tinn object given number of inputs (nips),
+// number of hidden neurons for the hidden layer (nhid),
+// and number of outputs (nops).
 Tinn xtbuild(const int nips, const int nhid, const int nops)
 {
     Tinn t;
@@ -152,6 +158,7 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
     return t;
 }
 
+// Saves the tinn to disk.
 void xtsave(const Tinn t, const char* const path)
 {
     FILE* const file = efopen(path, "w");
@@ -163,6 +170,7 @@ void xtsave(const Tinn t, const char* const path)
     fclose(file);
 }
 
+// Loads a new tinn from disk.
 Tinn xtload(const char* const path)
 {
     FILE* const file = efopen(path, "r");
@@ -180,6 +188,7 @@ Tinn xtload(const char* const path)
     return t;
 }
 
+// Frees a tinn from the heap.
 void xtfree(const Tinn t)
 {
     free(t.w);
