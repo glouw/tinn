@@ -32,6 +32,14 @@ This gives 10 outputs to the neural network. The test program will output the
 accuracy for each digit. Expect above 99% accuracy for the correct digit, and
 less that 0.1% accuracy for the other digits.
 
+# Features
+
+* Portable - Runs on Windows, MacOS, Linux, and embedded chips like ARM, AVR, and Microchip
+
+* Sigmoidal activation.
+
+* One hidden layer.
+
 # Tips
 
 * Tinn will never use more than the C standard library.
