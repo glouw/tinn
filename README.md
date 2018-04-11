@@ -70,7 +70,7 @@ The training data consists of hand written digits written both slowly and quickl
 Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
 giving 256 inputs to the neural network.
 
-At the end of the line 10 digits signify the digit:
+At the end of the line 10 digits signify the hand written digit:
 
     0: 1 0 0 0 0 0 0 0 0 0
     1: 0 1 0 0 0 0 0 0 0 0
@@ -82,7 +82,7 @@ At the end of the line 10 digits signify the digit:
 
 This gives 10 outputs to the neural network. The test program will output the
 accuracy for each digit. Expect above 99% accuracy for the correct digit, and
-less that 0,1% accuracy for the other digits.
+less that 0.1% accuracy for the other digits.
 
 # Tips
 
