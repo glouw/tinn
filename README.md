@@ -2,51 +2,53 @@
 
 Tinn (Tiny Neural Network) is a 200 line dependency free neural network library written in C99.
 
-    #include "Tinn.h"
-    #include <stdio.h>
+```c
+#include "Tinn.h"
+#include <stdio.h>
 
-    #define SETS 4
-    #define NIPS 2
-    #define NHID 8
-    #define NOPS 1
-    #define ITER 2000
-    #define RATE 1.0f
+#define SETS 4
+#define NIPS 2
+#define NHID 8
+#define NOPS 1
+#define ITER 2000
+#define RATE 1.0f
 
-    int main()
+int main()
+{
+    // This example learns XOR.
+    float in[SETS][NIPS] = {
+        { 0, 0 },
+        { 0, 1 },
+        { 1, 0 },
+        { 1, 1 },
+    };
+    float tg[SETS][NOPS] = {
+        { 0 },
+        { 1 },
+        { 1 },
+        { 0 },
+    };
+    // Build.
+    const Tinn tinn = xtbuild(NIPS, NHID, NOPS);
+    // Train.
+    for(int i = 0; i < ITER; i++)
     {
-        // This example learns XOR.
-        float in[SETS][NIPS] = {
-            { 0, 0 },
-            { 0, 1 },
-            { 1, 0 },
-            { 1, 1 },
-        };
-        float tg[SETS][NOPS] = {
-            { 0 },
-            { 1 },
-            { 1 },
-            { 0 },
-        };
-        // Build.
-        const Tinn tinn = xtbuild(NIPS, NHID, NOPS);
-        // Train.
-        for(int i = 0; i < ITER; i++)
-        {
-            float error = 0.0f;
-            for(int j = 0; j < SETS; j++)
-                error += xttrain(tinn, in[j], tg[j], RATE);
-            printf("%.12f\n", error / SETS);
-        }
-        // Predict.
-        for(int i = 0; i < SETS; i++)
-        {
-            const float* pd = xtpredict(tinn, in[i]);
-            printf("%f :: %f\n", tg[i][0], (double) pd[0]);
-        }
-        // Cleanup.
-        xtfree(tinn);
-        return 0;
+        float error = 0.0f;
+        for(int j = 0; j < SETS; j++)
+            error += xttrain(tinn, in[j], tg[j], RATE);
+        printf("%.12f\n", error / SETS);
     }
+    // Predict.
+    for(int i = 0; i < SETS; i++)
+    {
+        const float* pd = xtpredict(tinn, in[i]);
+        printf("%f :: %f\n", tg[i][0], (double) pd[0]);
+    }
+    // Cleanup.
+    xtfree(tinn);
+    return 0;
+}
+```
 
 For a more complicated demo on how to learn hand written digits, get some training data:
 
