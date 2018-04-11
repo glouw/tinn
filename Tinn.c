@@ -197,6 +197,7 @@ void xtfree(const Tinn t)
     free(t.o);
 }
 
+// Prints an array of floats. Useful for printing predictions.
 void xtprint(const float* arr, const int size)
 {
     for(int i = 0; i < size; i++)
