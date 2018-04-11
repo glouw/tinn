@@ -1,24 +1,48 @@
 ![](img/logo.PNG)
 
 Tinn (Tiny Neural Network) is a 200 line dependency free neural network library written in C99.
-Tinn can be compiled with any C++ compiler as well.
 
     #include "Tinn.h"
     #include <stdio.h>
 
-    #define len(a) ((int) (sizeof(a) / sizeof(*a)))
+    #define SETS 4
+    #define NIPS 2
+    #define NHID 8
+    #define NOPS 1
+    #define ITER 2000
+    #define RATE 1.0f
 
     int main()
     {
-        float in[] = { 0.05, 0.10 };
-        float tg[] = { 0.01, 0.99 };
-        /* Two hidden neurons */
-        const Tinn tinn = xtbuild(len(in), 2, len(tg));
-        for(int i = 0; i < 1000; i++)
+        float in[SETS][NIPS] = {
+            { 0, 0 },
+            { 0, 1 },
+            { 1, 0 },
+            { 1, 1 },
+        };
+        float tg[SETS][NOPS] = {
+            { 0 },
+            { 1 },
+            { 1 },
+            { 0 },
+        };
+        // Build.
+        const Tinn tinn = xtbuild(NIPS, NHID, NOPS);
+        // Train.
+        for(int i = 0; i < ITER; i++)
         {
-            float error = xttrain(tinn, in, tg, 0.5);
-            printf("%.12f\n", error);
+            float error = 0.0f;
+            for(int j = 0; j < SETS; j++)
+                error += xttrain(tinn, in[j], tg[j], RATE);
+            printf("%.12f\n", error / SETS);
         }
+        // Predict.
+        for(int i = 0; i < SETS; i++)
+        {
+            const float* pd = xtpredict(tinn, in[i]);
+            printf("%f :: %f\n", tg[i][0], (double) pd[0]);
+        }
+        // Cleanup.
         xtfree(tinn);
         return 0;
     }
@@ -34,3 +58,21 @@ And if you're on Linux / MacOS just build and run:
 If you're on Windows it's:
 
     mingw32-make & tinn.exe
+
+The training data consists of hand written digits written both slowly and quickly.
+Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
+giving 256 inputs to the neural network.
+
+At the end of the line 10 digits signify the digit:
+
+    0: 1 0 0 0 0 0 0 0 0 0
+    1: 0 1 0 0 0 0 0 0 0 0
+    2: 0 0 1 0 0 0 0 0 0 0
+    3: 0 0 0 1 0 0 0 0 0 0
+    4: 0 0 0 0 1 0 0 0 0 0
+    ...
+    9: 0 0 0 0 0 0 0 0 0 1
+
+This gives 10 outputs to the neural network. The test program will output the
+accuracy for each digit. Expect above 99% accuracy for the correct digit, and
+less that 1% accuracy for the other digits.
