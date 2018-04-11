@@ -34,6 +34,11 @@ else
 	MV = mv -f
 endif
 
+_SYS=$(shell uname -o)
+ifeq ($(_SYS),Msys)
+	CFLAGS += -posix	# Msys2 / Mingw64 seems to need this for printf / scanf %a support. Sigh..
+endif
+
 # Link.
 
 $(BIN): $(SRCS:.c=.o)
