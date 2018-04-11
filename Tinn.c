@@ -165,8 +165,8 @@ void xtsave(const Tinn t, const char* const path)
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
-    for(int i = 0; i < t.nb; i++) fprintf(file, "%a\n", (double) t.b[i]);
-    for(int i = 0; i < t.nw; i++) fprintf(file, "%a\n", (double) t.w[i]);
+    for(int i = 0; i < t.nb; i++) fprintf(file, "%f\n", (double) t.b[i]);
+    for(int i = 0; i < t.nw; i++) fprintf(file, "%f\n", (double) t.w[i]);
     fclose(file);
 }
 
@@ -182,8 +182,8 @@ Tinn xtload(const char* const path)
     // A new tinn is returned.
     const Tinn t = xtbuild(nips, nhid, nops);
     // Biases and weights.
-    for(int i = 0; i < t.nb; i++) fscanf(file, "%a\n", &t.b[i]);
-    for(int i = 0; i < t.nw; i++) fscanf(file, "%a\n", &t.w[i]);
+    for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
+    for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
     fclose(file);
     return t;
 }
