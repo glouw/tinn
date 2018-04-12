@@ -14,17 +14,6 @@ typedef struct
 }
 Data;
 
-typedef struct {
-    int k;
-    float tg;
-    float pd;
-} pos;
-
-void output_svg(int j, Data data, int realnum, float pcage, int goodbad)
-{
-	printf("ln -s %05d-%d.svg %s/\n", j, realnum, goodbad ? "good" : "bad");
-}
-
 static int lns(FILE* const file)
 {
     int ch = EOF;
@@ -79,8 +68,12 @@ static void parse(const Data data, char* line, const int row)
     for(int col = 0; col < data.nips; col++)
     {
         const float val = atof(strtok(col == 0 ? line : NULL, ", "));
-        data.in[row][col] = val/100.0;
+        /* Input values are 0-100 pixel coordinates; scale to 0.0-1.0 */
+        data.in[row][col] = val / 100.0;
     }
+    /* Last value is a 0-9 numeral which we need to convert
+     * into a size 10 vector of {0.00, 1.00}
+     */
     const float val = atof(strtok(NULL, ", "));
     for(int col = 0; col < data.nops; col++) {
         data.tg[row][col] = 0.0;
@@ -122,7 +115,7 @@ static Data build(const char* path, const int nips, const int nops)
     {
         printf("Could not open %s\n", path);
         printf("Get it from the machine learning database: ");
-        printf("wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data\n");
+        printf("wget http://archive.ics.uci.edu/ml/machine-learning-databases/pendigits/pendigits.tra\n");
         exit(1);
     }
     const int rows = lns(file);
@@ -137,14 +130,6 @@ static Data build(const char* path, const int nips, const int nops)
     return data;
 }
 
-int sort_by_pd(const void *a, const void *b) {
-    pos x = *(pos*)a;
-    pos y = *(pos*)b;
-    if (x.pd > y.pd) { return -1; }
-    if (x.pd < y.pd) { return +1; }
-    return 0;
-}
-
 int main()
 {
     // Tinn does not seed the random number generator.
@@ -153,46 +138,49 @@ int main()
     // repositories usually don't include the input and output size in the data itself.
     const int nips = 16;
     const int nops = 10;
+    // Hyper Parameters.
+    // Learning rate is annealed and thus not constant.
+    // It can be fine tuned along with the number of hidden layers.
+    // Feel free to modify the anneal rate.
+    // The number of iterations can be changed for stronger training.
+    float rate = 1.0f;
+    const int nhid = 28;
+    const float anneal = 0.99f;
+    const int iterations = 128;
     // Load the training set.
-    const Data data = build("pendigits.tes", nips, nops);
+    const Data data = build("pendigits.tra", nips, nops);
+    // Train, baby, train.
+    const Tinn tinn = xtbuild(nips, nhid, nops);
+    for(int i = 0; i < iterations; i++)
+    {
+        shuffle(data);
+        float error = 0.0f;
+        for(int j = 0; j < data.rows; j++)
+        {
+            const float* const in = data.in[j];
+            const float* const tg = data.tg[j];
+            error += xttrain(tinn, in, tg, rate);
+        }
+        printf("error %.12f :: learning rate %f\n",
+            (double) error / data.rows,
+            (double) rate);
+        rate *= anneal;
+    }
+    // This is how you save the neural network to disk.
+    xtsave(tinn, "saved.tinn");
+    xtfree(tinn);
     // This is how you load the neural network from disk.
     const Tinn loaded = xtload("saved.tinn");
-    pos check[nops];
-    int correct = 0;
-
     // Now we do a prediction with the neural network we loaded from disk.
-    for (int j = 0; j < data.rows; j++) {
-        const float* const in = data.in[j];
-        const float* const tg = data.tg[j];
-        const float* const pd = xtpredict(loaded, in);
-        // To find the "best match", we need to sort by probability (`pd`)
-        // whilst keeping the target (`tg`) aligned.  Copying them into
-        // our struct and then `qsort`ing on `pd` satisfies this.
-        for(int i = 0; i < data.nops; i++) {
-            check[i].k = i;
-            check[i].tg = tg[i];
-            check[i].pd = pd[i];
-        }
-        qsort(check, data.nops, sizeof(pos), sort_by_pd);
-        // If the highest probability guess is the correct one, success.
-        if (check[0].tg == 1) {
-            correct++;
-        }
-        // Otherwise we print out our best guess and the correct answer.
-        else {
-            int realnum = -1;
-            printf("%05d %d %.5f | ", j, check[0].k, (double) check[0].pd);
-            for (int i=1; i < data.nops; i++) {
-                if (check[i].tg == 1) {
-                    printf("%d %.5f", check[i].k, (double) check[i].pd);
-                    realnum = i;
-                }
-            }
-            printf("\n");
-        }
-    }
-    // 
-    printf("%d correct out of %d rows\n", correct, data.rows);
+    // Ideally, we would also load a testing set to make the prediction with,
+    // but for the sake of brevity here we just reuse the training set from earlier.
+    // One data set is picked at random.
+    const int pick = rand() % data.rows;
+    const float* const in = data.in[pick];
+    const float* const tg = data.tg[pick];
+    const float* const pd = xtpredict(loaded, in);
+    xtprint(tg, data.nops);
+    xtprint(pd, data.nops);
     // All done. Let's clean up.
     xtfree(loaded);
     dfree(data);
