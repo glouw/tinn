@@ -1,39 +1,59 @@
 #pragma once
 
-typedef struct
-{
-    float* w; // All the weights.
-    float* x; // Hidden to output layer weights.
-    float* b; // Biases.
-    float* h; // Hidden layer.
-    float* o; // Output layer.
+#include <vector>
+#include <string>
 
-    int nb; // Number of biases - always two - Tinn only supports a single hidden layer.
-    int nw; // Number of weights.
+using std::vector;
+using std::string;
 
-    int nips; // Number of inputs.
-    int nhid; // Number of hidden neurons.
-    int nops; // Number of outputs.
-}
-Tinn;
+struct TinnState;
 
-// Trains a tinn with an input and target output with a learning rate.
-// Returns error rate of the neural network.
-float xttrain(Tinn, const float* in, const float* tg, float rate);
+class Tinn {
+public:
+	Tinn(int n_inputs, int n_hidden, int n_outputs);
+	Tinn(string path);
 
-// Builds a new tinn object given number of inputs (nips),
-// number of hidden neurons for the hidden layer (nhid),
-// and number of outputs (nops).
-Tinn xtbuild(int nips, int nhid, int nops);
+	double train(vector<double> input, vector<double> target, double rate);
+	vector<double> predict(vector<double> input);
 
-// Returns an output prediction given an input.
-float* xtpredict(Tinn, const float* in);
+	void save(string path);
+private:
+	TinnState forward_propogate(vector<double> input);
+	void back_propogate(TinnState state, vector<double> input, vector<double> target, double rate);
 
-// Saves the tinn to disk.
-void xtsave(Tinn, const char* path);
+	double get_input_weight(int hidden, int input) const {
+		return weights[hidden * n_inputs + input];
+	}
+	double get_hidden_weight(int output, int hidden) const {
+		return weights[output * n_hidden + hidden + n_hidden * n_inputs];
+	}
+	void set_input_weight(int hidden, int input, double weight) {
+		weights[hidden * n_inputs + input] = weight;
+	}
+	void set_hidden_weight(int output, int hidden, double weight) {
+		weights[output * n_hidden + hidden + n_hidden * n_inputs] = weight;
+	}
 
-// Loads a new tinn from disk.
-Tinn xtload(const char* path);
+	void randomize_weights_biases();
 
-// Frees a tinn from the heap.
-void xtfree(Tinn);
+	int n_inputs, n_hidden, n_outputs;
+	const static int n_biases = 2;
+
+	vector<double> weights, biases;
+};
+
+struct TinnState {
+public:
+	TinnState(vector<double> hidden, vector<double> output) : hidden{hidden}, output{output} {}
+	double get_hidden(int n) const { return hidden[n]; }
+	double get_output(int n) const { return output[n]; }
+	vector<double> get_outputs() const { return output; }
+private:
+	vector<double> hidden, output;
+};
+
+double activation(double x);
+double partial_activation(double x);
+double error(double target, double output);
+double partial_error(double target, double output);
+double total_error(vector<double> target, vector<double> output);

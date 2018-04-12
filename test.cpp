@@ -1,179 +1,138 @@
 #include "Tinn.h"
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#include <stdlib.h>
 
-typedef struct
-{
-    float** in;
-    float** tg;
-    int nips;
-    int nops;
-    int rows;
-}
-Data;
+#include <iostream>
+#include <fstream>
+#include <algorithm>
+#include <chrono>
+#include <random>
 
-static int lns(FILE* const file)
-{
-    int ch = EOF;
-    int lines = 0;
-    int pc = '\n';
-    while((ch = getc(file)) != EOF)
-    {
-        if(ch == '\n')
-            lines++;
-        pc = ch;
-    }
-    if(pc != '\n')
-        lines++;
-    rewind(file);
-    return lines;
-}
+using std::vector;
+using std::string;
 
-static char* readln(FILE* const file)
-{
-    int ch = EOF;
-    int reads = 0;
-    int size = 128;
-    char* line = (char*) malloc((size) * sizeof(char));
-    while((ch = getc(file)) != '\n' && ch != EOF)
-    {
-        line[reads++] = ch;
-        if(reads + 1 == size)
-            line = (char*) realloc((line), (size *= 2) * sizeof(char));
-    }
-    line[reads] = '\0';
-    return line;
-}
+struct Data {
+public:
+	Data(string path, int n_inputs, int n_outputs);
 
-static float** new2d(const int rows, const int cols)
-{
-    float** row = (float**) malloc((rows) * sizeof(float*));
-    for(int r = 0; r < rows; r++)
-        row[r] = (float*) malloc((cols) * sizeof(float));
-    return row;
-}
+	void shuffle();
 
-static Data ndata(const int nips, const int nops, const int rows)
-{
-    const Data data = {
-        new2d(rows, nips), new2d(rows, nops), nips, nops, rows
-    };
-    return data;
+	int get_n_rows() const { return n_rows; }
+	vector<double> get_input(int input) const { return inputs[input]; }
+	vector<double> get_target(int target) const { return targets[target]; }
+
+private:
+	void parse(string line, int row);
+
+	vector<vector<double>> inputs, targets;
+	int n_inputs, n_outputs, n_rows;
+};
+
+class Line {
+public:
+	friend std::istream &operator>>(std::istream &is, Line &l) {
+		std::getline(is, l.data);
+		return is;
+	}
+private:
+	std::string data;
+};
+
+Data::Data(string path, int n_inputs, int n_outputs) :
+	n_inputs{n_inputs},
+	n_outputs{n_outputs} {
+	std::ifstream file(path);
+	std::ifstream counter(path);
+	n_rows = std::count(std::istreambuf_iterator<char>(counter), std::istreambuf_iterator<char>(), '\n');
+
+	vector<vector<double>> prototype(n_rows);
+	inputs = prototype;
+	targets = prototype;
+
+	for(int row = 0; row < n_rows; row++) {
+		string line;
+		std::getline(file, line);
+		parse(line, row);
+	}
 }
 
-static void parse(const Data data, char* line, const int row)
-{
-    const int cols = data.nips + data.nops;
-    for(int col = 0; col < cols; col++)
-    {
-        const float val = atof(strtok(col == 0 ? line : NULL, " "));
-        if(col < data.nips)
-            data.in[row][col] = val;
-        else
-            data.tg[row][col - data.nips] = val;
-    }
+void Data::parse(string line, int row) {
+	int n_columns = n_inputs + n_outputs;
+	string delimiter{" "};
+	vector<double> values;
+	values.reserve(n_columns);
+
+	inputs[row].reserve(n_inputs);
+	targets[row].reserve(n_outputs);
+
+	size_t pos = 0;
+	std::string token;
+
+	while ((pos = line.find(delimiter)) != std::string::npos) {
+   		token = line.substr(0, pos);
+			values.push_back(std::stod(token));
+	    line.erase(0, pos + delimiter.length());
+	}
+
+	for(int column = 0; column < n_columns; column++) {
+		if(column < n_inputs)
+			inputs.at(row).push_back(values[column]);
+		else
+			targets.at(row).push_back(values[column]);
+	}
 }
 
-static void dfree(const Data d)
-{
-    for(int row = 0; row < d.rows; row++)
-    {
-        free(d.in[row]);
-        free(d.tg[row]);
-    }
-    free(d.in);
-    free(d.tg);
+void Data::shuffle() {
+	std::uniform_int_distribution<int> distribution{0, n_rows - 1};
+	std::default_random_engine generator{std::chrono::system_clock::now().time_since_epoch().count()};
+	// std::default_random_engine generator{0};
+
+	for(int row = 0; row < n_rows; row++) {
+		int swap = distribution(generator);
+		std::iter_swap(inputs.begin() + row, inputs.begin() + swap);
+		std::iter_swap(targets.begin() + row, targets.begin() + swap);
+	}
 }
 
-static void shuffle(const Data d)
-{
-    for(int a = 0; a < d.rows; a++)
-    {
-        const int b = rand() % d.rows;
-        float* ot = d.tg[a];
-        float* it = d.in[a];
-        // Swap output.
-        d.tg[a] = d.tg[b];
-        d.tg[b] = ot;
-        // Swap input.
-        d.in[a] = d.in[b];
-        d.in[b] = it;
-    }
-}
+int main() {
+	const int n_inputs{256};
+	const int n_outputs{10};
 
-static Data build(const char* path, const int nips, const int nops)
-{
-    FILE* file = fopen(path, "r");
-    if(file == NULL)
-    {
-        printf("Could not open %s\n", path);
-        printf("Get it from the machine learning database: ");
-        printf("wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data\n");
-        exit(1);
-    }
-    const int rows = lns(file);
-    Data data = ndata(nips, nops, rows);
-    for(int row = 0; row < rows; row++)
-    {
-        char* line = readln(file);
-        parse(data, line, row);
-        free(line);
-    }
-    fclose(file);
-    return data;
-}
+	const int n_hidden{28};
+	double rate{1.0f};
+	const double anneal{0.99f};
 
-int main()
-{
-    // Tinn does not seed the random number generator.
-    srand(time(0));
-    // Input and output size is harded coded here as machine learning
-    // repositories usually don't include the input and output size in the data itself.
-    const int nips = 256;
-    const int nops = 10;
-    // Hyper Parameters.
-    // Learning rate is annealed and thus not constant.
-    // It can be fine tuned along with the number of hidden layers.
-    // Feel free to modify the anneal rate as well.
-    const int nhid = 28;
-    float rate = 1.0f;
-    const float anneal = 0.99f;
-    // Load the training set.
-    const Data data = build("semeion.data", nips, nops);
-    // Train, baby, train.
-    const Tinn tinn = xtbuild(nips, nhid, nops);
-    for(int i = 0; i < 100; i++)
-    {
-        shuffle(data);
-        float error = 0.0f;
-        for(int j = 0; j < data.rows; j++)
-        {
-            const float* const in = data.in[j];
-            const float* const tg = data.tg[j];
-            error += xttrain(tinn, in, tg, rate);
-        }
-        printf("error %.12f :: learning rate %f\n",
-            (double) error / data.rows,
-            (double) rate);
-        rate *= anneal;
-    }
-    // This is how you save the neural network to disk.
-    xtsave(tinn, "saved.tinn");
-    xtfree(tinn);
-    // This is how you load the neural network from disk.
-    const Tinn loaded = xtload("saved.tinn");
-    // Now we do a prediction with the neural network we loaded from disk.
-    // Ideally, we would also load a testing set to make the prediction with,
-    // but for the sake of brevity here we just reuse the training set from earlier.
-    const float* const in = data.in[0];
-    const float* const tg = data.tg[0];
-    const float* const pd = xtpredict(loaded, in);
-    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) tg[i]); } printf("\n");
-    for(int i = 0; i < data.nops; i++) { printf("%f ", (double) pd[i]); } printf("\n");
-    // All done. Let's clean up.
-    xtfree(loaded);
-    dfree(data);
-    return 0;
+	Data data{"semeion.data", n_inputs, n_outputs};
+
+	Tinn tinn{n_inputs, n_hidden, n_outputs};
+
+	int rounds;
+	std::cout << "How many rounds of training?" << std::endl;
+	std::cin >> rounds;
+
+	std::cout.precision(4);
+
+	for(int i = 0; i < rounds; i++) {
+		data.shuffle();
+
+		double error{0};
+
+		for(int j = 0; j < data.get_n_rows(); j++) {
+			vector<double> input = data.get_input(j);
+			vector<double> target = data.get_target(j);
+
+			error += tinn.train(input, target, rate);
+		}
+
+		std::cout << "error: " << std::fixed << error / data.get_n_rows() << " learning rate: " << rate << std::endl;
+		rate *= anneal;
+	}
+
+	tinn.save("saved.tinn");
+	Tinn loaded{"saved.tinn"};
+
+	vector<double> input = data.get_input(0);
+	vector<double> target = data.get_target(0);
+	vector<double> prediction = tinn.predict(input);
+
+	for(auto i = target.begin(); i != target.end(); i++) { std::cout << std::fixed << *i << " "; } std::cout << std::endl;
+	for(auto i = prediction.begin(); i != prediction.end(); i++) { std::cout << std::fixed << *i << " "; } std::cout << std::endl;
 }
