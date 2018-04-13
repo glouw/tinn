@@ -5,19 +5,19 @@
 #include <stdlib.h>
 #include <math.h>
 
-// Error function.
+// Computs error.
 static float err(const float a, const float b)
 {
     return 0.5f * (a - b) * (a - b);
 }
 
-// Partial derivative of error function.
+// Returns partial derivative of error function.
 static float pderr(const float a, const float b)
 {
     return a - b;
 }
 
-// Total error.
+// Computes total error of target to output.
 static float toterr(const float* const tg, const float* const o, const int size)
 {
     float sum = 0.0f;
@@ -32,19 +32,19 @@ static float act(const float a)
     return 1.0f / (1.0f + expf(-a));
 }
 
-// Partial derivative of activation function.
+// Returns partial derivative of activation function.
 static float pdact(const float a)
 {
     return a * (1.0f - a);
 }
 
-// Floating point random from 0.0 - 1.0.
+// Returns floating point random from 0.0 - 1.0.
 static float frand()
 {
     return rand() / (float) RAND_MAX;
 }
 
-// Back propagation.
+// Performs back propagation.
 static void bprop(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     for(int i = 0; i < t.nhid; i++)
@@ -65,7 +65,7 @@ static void bprop(const Tinn t, const float* const in, const float* const tg, fl
     }
 }
 
-// Forward propagation.
+// Performs forward propagation.
 static void fprop(const Tinn t, const float* const in)
 {
     // Calculate hidden layer neuron values.
@@ -86,7 +86,7 @@ static void fprop(const Tinn t, const float* const in)
     }
 }
 
-// Randomizes weights and biases.
+// Randomizes tinn weights and biases.
 static void twrand(const Tinn t)
 {
     for(int i = 0; i < t.nw; i++) t.w[i] = frand() - 0.5f;
@@ -100,8 +100,7 @@ float* xtpredict(const Tinn t, const float* const in)
     return t.o;
 }
 
-// Trains a tinn with an input and target output with a learning rate.
-// Returns error rate of the neural network.
+// Trains a tinn with an input and target output with a learning rate. Returns target to output error.
 float xttrain(const Tinn t, const float* const in, const float* const tg, float rate)
 {
     fprop(t, in);
@@ -109,9 +108,7 @@ float xttrain(const Tinn t, const float* const in, const float* const tg, float 
     return toterr(tg, t.o, t.nops);
 }
 
-// Builds a new tinn object given number of inputs (nips),
-// number of hidden neurons for the hidden layer (nhid),
-// and number of outputs (nops).
+// Constructs a tinn with number of inputs, number of hidden neurons, and number of outputs
 Tinn xtbuild(const int nips, const int nhid, const int nops)
 {
     Tinn t;
@@ -130,37 +127,37 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
     return t;
 }
 
-// Saves the tinn to disk.
+// Saves a tinn to disk.
 void xtsave(const Tinn t, const char* const path)
 {
     FILE* const file = fopen(path, "w");
-    // Header.
+    // Save header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
-    // Biases and weights.
+    // Save biases and weights.
     for(int i = 0; i < t.nb; i++) fprintf(file, "%f\n", (double) t.b[i]);
     for(int i = 0; i < t.nw; i++) fprintf(file, "%f\n", (double) t.w[i]);
     fclose(file);
 }
 
-// Loads a new tinn from disk.
+// Loads a tinn from disk.
 Tinn xtload(const char* const path)
 {
     FILE* const file = fopen(path, "r");
     int nips = 0;
     int nhid = 0;
     int nops = 0;
-    // Header.
+    // Load header.
     fscanf(file, "%d %d %d\n", &nips, &nhid, &nops);
-    // A new tinn is returned.
+    // Build a new tinn.
     const Tinn t = xtbuild(nips, nhid, nops);
-    // Biases and weights.
+    // Load biaes and weights.
     for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
     for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
     fclose(file);
     return t;
 }
 
-// Frees a tinn from the heap.
+// Frees object from heap.
 void xtfree(const Tinn t)
 {
     free(t.w);
