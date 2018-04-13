@@ -147,12 +147,12 @@ Tinn xtload(const char* const path)
     int nhid = 0;
     int nops = 0;
     // Load header.
-    fscanf(file, "%d %d %d\n", &nips, &nhid, &nops);
+    if (3 != fscanf(file, "%d %d %d\n", &nips, &nhid, &nops)) { exit(1); }
     // Build a new tinn.
     const Tinn t = xtbuild(nips, nhid, nops);
     // Load biaes and weights.
-    for(int i = 0; i < t.nb; i++) fscanf(file, "%f\n", &t.b[i]);
-    for(int i = 0; i < t.nw; i++) fscanf(file, "%f\n", &t.w[i]);
+    for(int i = 0; i < t.nb; i++) if (1 != fscanf(file, "%f\n", &t.b[i])) break;
+    for(int i = 0; i < t.nw; i++) if (1 != fscanf(file, "%f\n", &t.w[i])) break;
     fclose(file);
     return t;
 }
