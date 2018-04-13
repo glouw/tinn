@@ -93,34 +93,6 @@ static void twrand(const Tinn t)
     for(int i = 0; i < t.nb; i++) t.b[i] = frand() - 0.5f;
 }
 
-// Prints a message and exits.
-static void bomb(const char* const message, ...)
-{
-    va_list args;
-    va_start(args, message);
-    vprintf(message, args);
-    va_end(args);
-    exit(1);
-}
-
-// Fail safe file opening.
-static FILE* efopen(const char* const pathname, const char* const mode)
-{
-    FILE* const file = fopen(pathname, mode);
-    if(file == NULL)
-        bomb("failure: fopen(\"%s\", \"%s\")\n", pathname, mode);
-    return file;
-}
-
-// Fail safe clear allocation.
-static void* ecalloc(const size_t nmemb, const size_t size)
-{
-    void* const mem = calloc(nmemb, size);
-    if(mem == NULL)
-        bomb("failure: calloc(%d, %d)\n", nmemb, size);
-    return mem;
-}
-
 // Returns an output prediction given an input.
 float* xtpredict(const Tinn t, const float* const in)
 {
@@ -146,11 +118,11 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
     // Tinn only supports one hidden layer so there are two biases.
     t.nb = 2;
     t.nw = nhid * (nips + nops);
-    t.w = (float*) ecalloc(t.nw, sizeof(*t.w));
+    t.w = (float*) calloc(t.nw, sizeof(*t.w));
     t.x = t.w + nhid * nips;
-    t.b = (float*) ecalloc(t.nb, sizeof(*t.b));
-    t.h = (float*) ecalloc(nhid, sizeof(*t.h));
-    t.o = (float*) ecalloc(nops, sizeof(*t.o));
+    t.b = (float*) calloc(t.nb, sizeof(*t.b));
+    t.h = (float*) calloc(nhid, sizeof(*t.h));
+    t.o = (float*) calloc(nops, sizeof(*t.o));
     t.nips = nips;
     t.nhid = nhid;
     t.nops = nops;
@@ -161,7 +133,7 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
 // Saves the tinn to disk.
 void xtsave(const Tinn t, const char* const path)
 {
-    FILE* const file = efopen(path, "w");
+    FILE* const file = fopen(path, "w");
     // Header.
     fprintf(file, "%d %d %d\n", t.nips, t.nhid, t.nops);
     // Biases and weights.
@@ -173,7 +145,7 @@ void xtsave(const Tinn t, const char* const path)
 // Loads a new tinn from disk.
 Tinn xtload(const char* const path)
 {
-    FILE* const file = efopen(path, "r");
+    FILE* const file = fopen(path, "r");
     int nips = 0;
     int nhid = 0;
     int nops = 0;
