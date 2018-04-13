@@ -4,16 +4,23 @@
 #include <string.h>
 #include <stdlib.h>
 
+// Data object.
 typedef struct
 {
+    // 2D floating point array of input.
     float** in;
+    // 2D floating point array of target.
     float** tg;
+    // Number of inputs to neural network.
     int nips;
+    // Number of outputs to neural network.
     int nops;
+    // Number of rows in file (number of sets for neural network).
     int rows;
 }
 Data;
 
+// Returns the number of lines in a file.
 static int lns(FILE* const file)
 {
     int ch = EOF;
@@ -31,6 +38,7 @@ static int lns(FILE* const file)
     return lines;
 }
 
+// Reads a line from a file.
 static char* readln(FILE* const file)
 {
     int ch = EOF;
@@ -47,6 +55,7 @@ static char* readln(FILE* const file)
     return line;
 }
 
+// New 2D array of floats.
 static float** new2d(const int rows, const int cols)
 {
     float** row = (float**) malloc((rows) * sizeof(float*));
@@ -55,6 +64,7 @@ static float** new2d(const int rows, const int cols)
     return row;
 }
 
+// New data object.
 static Data ndata(const int nips, const int nops, const int rows)
 {
     const Data data = {
@@ -63,6 +73,7 @@ static Data ndata(const int nips, const int nops, const int rows)
     return data;
 }
 
+// Gets one row of inputs and outputs from a string.
 static void parse(const Data data, char* line, const int row)
 {
     const int cols = data.nips + data.nops;
@@ -76,6 +87,7 @@ static void parse(const Data data, char* line, const int row)
     }
 }
 
+// Frees a data object from the heap.
 static void dfree(const Data d)
 {
     for(int row = 0; row < d.rows; row++)
@@ -87,6 +99,7 @@ static void dfree(const Data d)
     free(d.tg);
 }
 
+// Randomly shuffles a data object.
 static void shuffle(const Data d)
 {
     for(int a = 0; a < d.rows; a++)
@@ -103,6 +116,7 @@ static void shuffle(const Data d)
     }
 }
 
+// Parses file from path getting all inputs and outputs for the neural network. Returns data object.
 static Data build(const char* path, const int nips, const int nops)
 {
     FILE* file = fopen(path, "r");
@@ -170,12 +184,14 @@ int main()
     // Now we do a prediction with the neural network we loaded from disk.
     // Ideally, we would also load a testing set to make the prediction with,
     // but for the sake of brevity here we just reuse the training set from earlier.
-    // One data set is picked at random.
-    const int pick = rand() % data.rows;
-    const float* const in = data.in[pick];
-    const float* const tg = data.tg[pick];
+    // One data set is picked at random (zero index of input and target arrays is enough
+    // as they were both shuffled earlier).
+    const float* const in = data.in[0];
+    const float* const tg = data.tg[0];
     const float* const pd = xtpredict(loaded, in);
+    // Prints target.
     xtprint(tg, data.nops);
+    // Prints prediction.
     xtprint(pd, data.nops);
     // All done. Let's clean up.
     xtfree(loaded);
