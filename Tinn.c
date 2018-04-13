@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-// Computs error.
+// Computes error.
 static float err(const float a, const float b)
 {
     return 0.5f * (a - b) * (a - b);
