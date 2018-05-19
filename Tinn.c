@@ -87,7 +87,7 @@ static void fprop(const Tinn t, const float* const in)
 }
 
 // Randomizes tinn weights and biases.
-static void twrand(const Tinn t)
+static void wbrand(const Tinn t)
 {
     for(int i = 0; i < t.nw; i++) t.w[i] = frand() - 0.5f;
     for(int i = 0; i < t.nb; i++) t.b[i] = frand() - 0.5f;
@@ -123,7 +123,7 @@ Tinn xtbuild(const int nips, const int nhid, const int nops)
     t.nips = nips;
     t.nhid = nhid;
     t.nops = nops;
-    twrand(t);
+    wbrand(t);
     return t;
 }
 
