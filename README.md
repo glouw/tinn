@@ -32,7 +32,7 @@ This gives 10 outputs to the neural network. The test program will output the
 accuracy for each digit. Expect above 99% accuracy for the correct digit, and
 less that 0.1% accuracy for the other digits.
 
-# Features
+## Features
 
 * Portable - Runs on Windows, MacOS, Linux, and embedded chips like ARM, AVR, and Microchip
 
@@ -40,7 +40,7 @@ less that 0.1% accuracy for the other digits.
 
 * One hidden layer.
 
-# Tips
+## Tips
 
 * Tinn will never use more than the C standard library.
 
@@ -60,7 +60,7 @@ single threaded to aid development for embedded systems.
 * Get greater training accuracy by annealing your learning rate. For instance, multiply
 your learning rate by 0.99 every training iteration. This will zero in on a good learning minima.
 
-# Disclaimer
+## Disclaimer
 
 Tinn is a practice in minimalism.
 
@@ -70,11 +70,11 @@ Tinn is not a fully featured neural network C library like Kann, or Genann:
 
     https://github.com/codeplea/genann
 
-# Ports
+## Ports
 
     Rust: https://github.com/dvdplm/rustinn
 
-# Other
+## Other
 
  [A Tutorial using Tinn NN and CTypes](https://medium.com/@cknorow/creating-a-python-interface-to-a-c-library-a-tutorial-using-tinn-nn-d935707dd225)
 
