@@ -2,6 +2,5 @@
 *.txt
 *.o
 *.d
-tinn
-nn.py
+test
 *.tinn

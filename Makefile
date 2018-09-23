@@ -1,6 +1,6 @@
 BIN = test
 
-CFLAGS = -std=c99 -Wall -Wextra -pedantic -Ofast -flto 
+CFLAGS = -std=c99 -Wall -Wextra -pedantic -Ofast -flto -march=native
 
 LDFLAGS = -lm
 
