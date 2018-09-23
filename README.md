@@ -6,13 +6,7 @@ For a demo on how to learn hand written digits, get some training data:
 
     wget http://archive.ics.uci.edu/ml/machine-learning-databases/semeion/semeion.data
 
-And if you're on Linux / MacOS just build and run Tinn with the test file:
-
-    make; ./tinn
-
-If you're on Windows it's:
-
-    mingw32-make & tinn.exe
+    make; ./test
 
 The training data consists of hand written digits written both slowly and quickly.
 Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
@@ -34,7 +28,7 @@ less that 0.1% accuracy for the other digits.
 
 ## Features
 
-* Portable - Runs on Windows, MacOS, Linux, and embedded chips like ARM, AVR, and Microchip
+* Portable - Runs where a C99 or C++98 compiler is present.
 
 * Sigmoidal activation.
 
