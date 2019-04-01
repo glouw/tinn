@@ -8,6 +8,11 @@ For a demo on how to learn hand written digits, get some training data:
 
     make; ./test
 
+If you're on `docker` it's:
+
+    docker build -t tinn .
+    docker run --user $(id -u) --rm -v ${PWD}:/data tinn
+
 The training data consists of hand written digits written both slowly and quickly.
 Each line in the data set corresponds to one handwritten digit. Each digit is 16x16 pixels in size
 giving 256 inputs to the neural network.
