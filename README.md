@@ -66,6 +66,7 @@ Tinn is not a fully featured neural network C library like Kann, or Genann:
 
 ## Ports
 
+    Java: https://github.com/vaccovecrana/jtinn
     Rust: https://github.com/dvdplm/rustinn
 
 ## Other
