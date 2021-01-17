@@ -68,6 +68,8 @@ Tinn is not a fully featured neural network C library like Kann, or Genann:
 
     Rust: https://github.com/dvdplm/rustinn
 
+    Dotnet: https://github.com/lawrence-laz/tinn-dotnet
+
 ## Other
 
  [A Tutorial using Tinn NN and CTypes](https://medium.com/@cknorow/creating-a-python-interface-to-a-c-library-a-tutorial-using-tinn-nn-d935707dd225)
